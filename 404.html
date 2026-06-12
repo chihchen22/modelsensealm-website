@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found | Model Sense</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Sora:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --obsidian: #121312;
+            --cloud-dancer: #F6F6F4;
+            --sand: #D1CBC1;
+            --node-teal: #2B7A78;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--cloud-dancer);
+            color: var(--obsidian);
+            font-family: 'Sora', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .card { max-width: 560px; text-align: center; }
+        .label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(18,19,18,0.55);
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 500;
+            font-size: clamp(2.2rem, 6vw, 3.6rem);
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+        h1 em { color: rgba(18,19,18,0.75); }
+        p { font-weight: 300; line-height: 1.7; color: rgba(18,19,18,0.8); margin-bottom: 36px; }
+        a.btn {
+            display: inline-flex;
+            padding: 14px 32px;
+            background: var(--obsidian);
+            color: var(--cloud-dancer);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            transition: opacity 0.3s ease;
+        }
+        a.btn:hover { opacity: 0.82; }
+        a.btn:focus-visible { outline: 2px solid var(--node-teal); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <p class="label">404 · Page not found</p>
+        <h1>Off the curve.<br><em>Nothing prices here.</em></h1>
+        <p>The page you asked for does not exist or has moved. The homepage has the book, the ALM Model Lab, and the masterclass.</p>
+        <a class="btn" href="/">Back to Model Sense</a>
+    </main>
+</body>
+</html>
