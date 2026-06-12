@@ -1,0 +1,521 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "bg",
+      "type": "rectangle",
+      "x": 20,
+      "y": 20,
+      "width": 1000,
+      "height": 600,
+      "backgroundColor": "#F6F6F4",
+      "strokeColor": "#D1CBC1",
+      "strokeWidth": 1,
+      "roughness": 0,
+      "createdAt": "2026-06-12T14:27:15.740Z",
+      "updatedAt": "2026-06-12T14:27:15.740Z",
+      "version": 1
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "x": 40,
+      "y": 34,
+      "width": 640,
+      "height": 34,
+      "strokeColor": "#121312",
+      "text": "From NMD balance to replicating tenors",
+      "fontSize": 24,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "root",
+      "type": "rectangle",
+      "x": 370,
+      "y": 86,
+      "width": 280,
+      "height": 58,
+      "backgroundColor": "transparent",
+      "strokeColor": "#121312",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Total NMD balance"
+      },
+      "fontSize": 17,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "stable",
+      "type": "rectangle",
+      "x": 170,
+      "y": 190,
+      "width": 230,
+      "height": 58,
+      "backgroundColor": "transparent",
+      "strokeColor": "#2B7A78",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Stable"
+      },
+      "fontSize": 16,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "nonstable",
+      "type": "rectangle",
+      "x": 620,
+      "y": 190,
+      "width": 230,
+      "height": 58,
+      "backgroundColor": "transparent",
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Non-stable"
+      },
+      "fontSize": 16,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "s_core",
+      "type": "rectangle",
+      "x": 70,
+      "y": 300,
+      "width": 210,
+      "height": 68,
+      "backgroundColor": "transparent",
+      "strokeColor": "#3D7A42",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Non-repricing (1−β)"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:28:57.319Z",
+      "version": 3
+    },
+    {
+      "id": "s_rep",
+      "type": "rectangle",
+      "x": 300,
+      "y": 300,
+      "width": 210,
+      "height": 68,
+      "backgroundColor": "transparent",
+      "strokeColor": "#7050A0",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Repricing (β)"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:29:04.916Z",
+      "version": 3
+    },
+    {
+      "id": "ns_rep",
+      "type": "rectangle",
+      "x": 540,
+      "y": 300,
+      "width": 210,
+      "height": 68,
+      "backgroundColor": "transparent",
+      "strokeColor": "#7050A0",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Repricing (β)"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:29:07.442Z",
+      "version": 3
+    },
+    {
+      "id": "ns_core",
+      "type": "rectangle",
+      "x": 770,
+      "y": 300,
+      "width": 210,
+      "height": 68,
+      "backgroundColor": "transparent",
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Non-repricing (1−β)"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:28:24.253Z",
+      "version": 2
+    },
+    {
+      "id": "dest_core",
+      "type": "rectangle",
+      "x": 40,
+      "y": 472,
+      "width": 300,
+      "height": 98,
+      "backgroundColor": "transparent",
+      "strokeColor": "#3D7A42",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Core deposits\nInvest long - RP up to\nthe liquidity-WAL cap"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "dest_ib",
+      "type": "rectangle",
+      "x": 370,
+      "y": 472,
+      "width": 300,
+      "height": 98,
+      "backgroundColor": "transparent",
+      "strokeColor": "#7050A0",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "IB-NMD repricing function\nO/N if indexed overnight;\nlonger tenors if blended"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.741Z",
+      "updatedAt": "2026-06-12T14:27:15.741Z",
+      "version": 1
+    },
+    {
+      "id": "dest_on",
+      "type": "rectangle",
+      "x": 700,
+      "y": 472,
+      "width": 300,
+      "height": 98,
+      "backgroundColor": "transparent",
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Overnight tenor\nconservative placement"
+      },
+      "fontSize": 14,
+      "fontFamily": 2,
+      "createdAt": "2026-06-12T14:27:15.742Z",
+      "updatedAt": "2026-06-12T14:27:15.742Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0teftotxr6v599v",
+      "type": "arrow",
+      "x": 439.997830706791,
+      "y": 147.35655825108327,
+      "strokeColor": "#121312",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -84.99566141358196,
+          39.28688349783346
+        ]
+      ],
+      "start": {
+        "id": "root"
+      },
+      "end": {
+        "id": "stable"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefu9f2a5vlyk6o",
+      "type": "arrow",
+      "x": 580.002169293209,
+      "y": 147.35655825108327,
+      "strokeColor": "#121312",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          84.99566141358196,
+          39.28688349783346
+        ]
+      ],
+      "start": {
+        "id": "root"
+      },
+      "end": {
+        "id": "nonstable"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefu378otw0ih98",
+      "type": "arrow",
+      "x": 251.73108839747846,
+      "y": 253.7811348571816,
+      "strokeColor": "#2B7A78",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -38.67956809930476,
+          40.4377302856368
+        ]
+      ],
+      "start": {
+        "id": "stable"
+      },
+      "end": {
+        "id": "s_core"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefu2uziseh56gq",
+      "type": "arrow",
+      "x": 321.03677520614076,
+      "y": 253.53524290588493,
+      "strokeColor": "#2B7A78",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          42.70905828337061,
+          40.92951418823017
+        ]
+      ],
+      "start": {
+        "id": "stable"
+      },
+      "end": {
+        "id": "s_rep"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefucotof7if6mt",
+      "type": "arrow",
+      "x": 707.3738817328222,
+      "y": 254.30004000806068,
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -30.834719987383437,
+          39.39991998387862
+        ]
+      ],
+      "start": {
+        "id": "nonstable"
+      },
+      "end": {
+        "id": "ns_rep"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefupatukzfa8g",
+      "type": "arrow",
+      "x": 776.4861578622889,
+      "y": 253.0779153868801,
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          50.94072775368318,
+          41.84416922623976
+        ]
+      ],
+      "start": {
+        "id": "nonstable"
+      },
+      "end": {
+        "id": "ns_core"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefussjoz933pck",
+      "type": "arrow",
+      "x": 178.36692939485613,
+      "y": 375.97438645587334,
+      "strokeColor": "#3D7A42",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          7.062932654137995,
+          88.05122708825331
+        ]
+      ],
+      "start": {
+        "id": "s_core"
+      },
+      "end": {
+        "id": "dest_core"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefu68t2o7uo0bn",
+      "type": "arrow",
+      "x": 430.0998369238262,
+      "y": 374.81451743265654,
+      "strokeColor": "#7050A0",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          55.57572722186626,
+          90.37096513468691
+        ]
+      ],
+      "start": {
+        "id": "s_rep"
+      },
+      "end": {
+        "id": "dest_ib"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefuq3rd565w4y",
+      "type": "arrow",
+      "x": 617.8269214348428,
+      "y": 374.6509255334752,
+      "strokeColor": "#7050A0",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -60.62710490177119,
+          90.69814893304965
+        ]
+      ],
+      "start": {
+        "id": "ns_rep"
+      },
+      "end": {
+        "id": "dest_ib"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    },
+    {
+      "id": "mqb0tefuabb94p46txj",
+      "type": "arrow",
+      "x": 869.3944582375823,
+      "y": 375.9294523828844,
+      "strokeColor": "#C86A3A",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -11.783568881581687,
+          88.14109523423122
+        ]
+      ],
+      "start": {
+        "id": "ns_core"
+      },
+      "end": {
+        "id": "dest_on"
+      },
+      "createdAt": "2026-06-12T14:27:30.524Z",
+      "updatedAt": "2026-06-12T14:27:30.524Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

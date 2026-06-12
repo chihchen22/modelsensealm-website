@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Sense — Agent Team of NBA Greats</title>
+
+  <!-- Google Fonts: Playfair Display + Sora -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN for layout utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'cloud-dancer': '#F6F6F4',
+            'obsidian':     '#121312',
+            'sand':         '#D1CBC1',
+            'book-steel':   '#4A5568',
+            'book-navy':    '#1A202C',
+            'node-teal':    '#2B7A78',
+            'node-green':   '#3D7A42',
+            'node-orange':  '#C86A3A',
+            'node-purple':  '#7050A0',
+          },
+          fontFamily: {
+            sans:  ['Sora', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ── Design tokens ───────────────────────────────── */
+    :root {
+      --obsidian:     #121312;
+      --cloud-dancer: #F6F6F4;
+      --sand:         #D1CBC1;
+      --book-steel:   #4A5568;
+      --book-navy:    #1A202C;
+      --node-teal:    #2B7A78;
+      --node-green:   #3D7A42;
+      --node-orange:  #C86A3A;
+      --node-purple:  #7050A0;
+      --font-serif:   'Playfair Display', Georgia, serif;
+      --font-sans:    'Sora', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--cloud-dancer);
+      color: var(--obsidian);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    ::selection {
+      background: var(--obsidian);
+      color: var(--cloud-dancer);
+    }
+
+    /* ── Scroll reveal ───────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.5, 0, 0, 1),
+                  transform 0.7s cubic-bezier(0.5, 0, 0, 1);
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Group label ─────────────────────────────────── */
+    .group-label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(18, 19, 18, 0.75);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(18,19,18,0.08);
+    }
+
+    /* ── Page header logo + tagline ──────────────────── */
+    .ms-logo-hero {
+      height: 168px;
+      width: auto;
+      display: block;
+    }
+    @media (max-width: 900px) {
+      .ms-logo-hero { height: 132px; }
+    }
+    @media (max-width: 640px) {
+      .ms-logo-hero { height: 96px; }
+    }
+
+    .ms-tagline {
+      font-family: var(--font-serif);
+      font-size: 42px;
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--obsidian);
+      letter-spacing: 0.005em;
+    }
+    @media (max-width: 900px) {
+      .ms-tagline { font-size: 34px; }
+    }
+    @media (max-width: 640px) {
+      .ms-tagline { font-size: 26px; }
+    }
+
+    .ms-divider {
+      width: 1px;
+      align-self: stretch;
+      background: rgba(18,19,18,0.15);
+    }
+    @media (max-width: 640px) {
+      .ms-divider { display: none; }
+    }
+
+    /* ── Hero copy ───────────────────────────────────── */
+    .hero-orgchart-wrap {
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto 56px;
+    }
+    .hero-orgchart {
+      width: 100%;
+      height: auto;
+      max-width: 1140px;
+      display: block;
+    }
+    @media (max-width: 900px) {
+      .hero-orgchart-wrap { margin-bottom: 40px; }
+    }
+
+    .hero-lead {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--obsidian);
+      margin-right: 6px;
+    }
+
+    .hero-para {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: rgba(18,19,18,0.78);
+      margin-bottom: 22px;
+    }
+    .hero-para:last-child { margin-bottom: 0; }
+
+    /* ════════════════════════════════════════════════════
+       FLIP CARD SCAFFOLD
+       ════════════════════════════════════════════════════ */
+    .flip {
+      perspective: 1400px;
+      cursor: pointer;
+    }
+    .flip:focus-visible {
+      outline: 2px solid var(--obsidian);
+      outline-offset: 4px;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .flip.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .flip-back {
+      transform: rotateY(180deg);
+    }
+
+    /* ── Agent flip card (2:3 to match portraits) ────── */
+    .agent-flip {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+    }
+
+    /* FRONT — full-bleed portrait, no overlay */
+    .agent-front {
+      background: white;
+      border: 1px solid rgba(18,19,18,0.09);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.35s ease;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .agent-flip:hover .agent-front {
+      transform: scale(1.025);
+      box-shadow: 0 18px 44px rgba(18,19,18,0.14);
+    }
+    .agent-flip:hover .agent-front[data-group="orchestrator"] { border-color: var(--book-navy); }
+    .agent-flip:hover .agent-front[data-group="kb"]           { border-color: var(--node-teal); }
+    .agent-flip:hover .agent-front[data-group="modeling"]     { border-color: var(--node-green); }
+    .agent-flip:hover .agent-front[data-group="book"]         { border-color: var(--node-orange); }
+    .agent-flip:hover .agent-front[data-group="web"]          { border-color: var(--node-purple); }
+    .agent-flip:hover .agent-front[data-group="bizops"]       { border-color: var(--node-teal); }
+
+    /* Group color top-border accent on hover */
+    .agent-front::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+    }
+    .agent-front[data-group="orchestrator"]::before { background: var(--book-navy); }
+    .agent-front[data-group="kb"]::before           { background: var(--node-teal); }
+    .agent-front[data-group="modeling"]::before     { background: var(--node-green); }
+    .agent-front[data-group="book"]::before         { background: var(--node-orange); }
+    .agent-front[data-group="web"]::before          { background: var(--node-purple); }
+    .agent-front[data-group="bizops"]::before       { background: var(--node-teal); }
+    .agent-flip:hover .agent-front::before { opacity: 1; }
+
+    .agent-front img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* Click-to-flip affordance: rotate icon top-right */
+    .flip-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(246,246,244,0.85);
+      color: var(--obsidian);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0.55;
+      transition: opacity 0.3s ease, background 0.3s ease;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .agent-flip:hover .flip-icon {
+      opacity: 1;
+      background: var(--cloud-dancer);
+    }
+
+    /* BACK — info panel */
+    .agent-card {
+      background: white;
+      border: 1px solid rgba(18,19,18,0.09);
+      padding: 24px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .badge-orch   { background: rgba(26,32,44,0.10);   color: var(--book-navy); }
+    .badge-kb     { background: rgba(43,122,120,0.10); color: var(--node-teal); }
+    .badge-model  { background: rgba(61,122,66,0.10);  color: var(--node-green); }
+    .badge-book   { background: rgba(200,106,58,0.10); color: var(--node-orange); }
+    .badge-web    { background: rgba(112,80,160,0.10); color: var(--node-purple); }
+    .badge-bizops { background: rgba(43,122,120,0.10); color: var(--node-teal); }
+
+    .card-name {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .card-realname {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(18,19,18,0.45);
+      margin-bottom: 10px;
+    }
+
+    .card-tagline {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(18,19,18,0.62);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .card-call-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(18,19,18,0.55);
+      margin-bottom: 8px;
+    }
+
+    .card-call-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-call-list li {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(18,19,18,0.72);
+      line-height: 1.45;
+      padding-left: 12px;
+      position: relative;
+    }
+
+    .card-call-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 5px;
+      height: 1px;
+      background: rgba(18,19,18,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════ PAGE HEADER ════════════════════════ -->
+<header class="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-12 reveal">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-9 flex-wrap">
+    <img src="../assets/Logo New.png" alt="Model Sense" class="ms-logo-hero">
+    <div class="ms-divider"></div>
+    <h1 class="ms-tagline">Agent Team of NBA Greats</h1>
+  </div>
+</header>
+
+<!-- ════════════════════════ HERO — ORG CHART + COPY ════════════════════════ -->
+<section class="max-w-7xl mx-auto px-6 md:px-12 pb-20 reveal">
+
+  <div class="hero-orgchart-wrap">
+    <img src="../assets/org-chart.svg" alt="Model Sense team org chart" class="hero-orgchart">
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
+    <div>
+      <p class="hero-para">
+        <span class="hero-lead">Mission.</span>
+        Models are tools, not oracles. They can be useful without being precise or accurate all the time. Model Sense is Chih Chen's solo practice connecting ALM modeling knowledge with practical use, teaching bank treasury and risk teams how models work, why they fail, and when to trust them.
+      </p>
+    </div>
+    <div>
+      <p class="hero-para">
+        <span class="hero-lead">How the team works.</span>
+        Chih briefs Phil. Phil scans the inbox, identifies intent, and routes work to the right specialist. Magic guards the knowledge base; the modeling team builds and validates; the book team writes and edits; Allen designs the public face; David and John keep the business clean. Specialists return work to the owner inbox for Chih's review.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════════════════════════ AGENT GRID ════════════════════════ -->
+<main class="max-w-7xl mx-auto px-6 md:px-12 pb-20">
+
+  <!-- ── Orchestrator ── -->
+  <section class="mb-14 reveal">
+    <div class="group-label">Orchestrator</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Phil -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Phil card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="orchestrator">
+              <img src="../assets/agents/01-phil.png" alt="Phil Jackson">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="orchestrator">
+              <span class="badge badge-orch">Orchestrator</span>
+              <div class="card-name">Phil</div>
+              <div class="card-realname">(Phil Jackson)</div>
+              <div class="card-tagline">Orchestrator. Sees the whole floor.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Any task. I decide whether to handle it directly or route it to the right agent.</li>
+                <li>Start every session here.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Knowledge Base ── -->
+  <section class="mb-14 reveal">
+    <div class="group-label">Knowledge Base</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Magic -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Magic card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="kb">
+              <img src="../assets/agents/02-magic.png" alt="Magic Johnson">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="kb">
+              <span class="badge badge-kb">Knowledge Base</span>
+              <div class="card-name">Magic</div>
+              <div class="card-realname">(Magic Johnson)</div>
+              <div class="card-tagline">Librarian. The single interface to the knowledge base.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Technical context, formulas, regulatory references</li>
+                <li>Chih's published articles, synthesis across sources</li>
+                <li>Every other agent calls me; no one reads the KB directly</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Modeling Team ── -->
+  <section class="mb-14 reveal">
+    <div class="group-label">Modeling Team</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Michael -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Michael card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="modeling">
+              <img src="../assets/agents/03-michael.png" alt="Michael Jordan">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="modeling">
+              <span class="badge badge-model">Modeling Team</span>
+              <div class="card-name">Michael</div>
+              <div class="card-realname">(Michael Jordan)</div>
+              <div class="card-tagline">ALM Expert. Subject matter authority.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Model design judgment, methodology questions</li>
+                <li>Framework selection, ALCO-level interpretation</li>
+                <li>I spec the build; I don't build it</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kobe -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Kobe card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="modeling">
+              <img src="../assets/agents/04-kobe.png" alt="Kobe Bryant">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="modeling">
+              <span class="badge badge-model">Modeling Team</span>
+              <div class="card-name">Kobe</div>
+              <div class="card-realname">(Kobe Bryant)</div>
+              <div class="card-tagline">Quant Modeler. Obsessive precision.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Excel workbook builds, Python scripts</li>
+                <li>Calibration tooling, dashboard prototypes</li>
+                <li>I inherit a spec from Michael and build the minimum that meets it</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steph -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Steph card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="modeling">
+              <img src="../assets/agents/06-steph.png" alt="Steph Curry">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="modeling">
+              <span class="badge badge-model">Modeling Team</span>
+              <div class="card-name">Steph</div>
+              <div class="card-realname">(Steph Curry)</div>
+              <div class="card-tagline">Data Scientist. Finds the non-obvious result.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Stochastic simulation, calibration, scenario design</li>
+                <li>Statistical analysis, exploratory data work</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dennis -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Dennis card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="modeling">
+              <img src="../assets/agents/08-dennis.png" alt="Dennis Rodman">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="modeling">
+              <span class="badge badge-model">Modeling Team</span>
+              <div class="card-name">Dennis</div>
+              <div class="card-realname">(Dennis Rodman)</div>
+              <div class="card-tagline">Validator. Does the dirty work.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Model validation, backtesting, sensitivity analysis</li>
+                <li>Edge case probing</li>
+                <li>Nothing leaves the modeling team without my sign-off</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tim -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Tim card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="modeling">
+              <img src="../assets/agents/07-tim.png" alt="Tim Duncan">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="modeling">
+              <span class="badge badge-model">Modeling Team</span>
+              <div class="card-name">Tim</div>
+              <div class="card-realname">(Tim Duncan)</div>
+              <div class="card-tagline">Documentation. The Big Fundamental.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Methodology notes, assumption registries</li>
+                <li>Audit trail, change logs</li>
+                <li>Every model the team ships has clean documentation because I wrote it</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Book Team ── -->
+  <section class="mb-14 reveal">
+    <div class="group-label">Book Team</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Larry -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Larry card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="book">
+              <img src="../assets/agents/05-larry.png" alt="Larry Bird">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="book">
+              <span class="badge badge-book">Book Team</span>
+              <div class="card-name">Larry</div>
+              <div class="card-realname">(Larry Bird)</div>
+              <div class="card-tagline">Ghostwriter. Writes in Chih's voice.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Book outlines, chapter drafts, prose revisions</li>
+                <li>I consult Magic and Michael along the way</li>
+                <li>Output goes to Jerry</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jerry -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Jerry card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="book">
+              <img src="../assets/agents/09-jerry.png" alt="Jerry West">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="book">
+              <span class="badge badge-book">Book Team</span>
+              <div class="card-name">Jerry</div>
+              <div class="card-realname">(Jerry West)</div>
+              <div class="card-tagline">Publisher/Editor. Wiley acquisitions perspective.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Chapter structure review, editorial memos</li>
+                <li>Market positioning, book coherence</li>
+                <li>I don't rewrite prose and I don't check formulas, those are Larry's and Michael's jobs</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Web Team ── -->
+  <section class="mb-14 reveal">
+    <div class="group-label">Web Team</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Allen -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip Allen card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="web">
+              <img src="../assets/agents/10-allen.png" alt="Allen Iverson">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="web">
+              <span class="badge badge-web">Web Team</span>
+              <div class="card-name">Allen</div>
+              <div class="card-realname">(Allen Iverson)</div>
+              <div class="card-tagline">Web Designer. Style in service of the work.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Website requirements elicitation, wireframes</li>
+                <li>Design mockups, site build, copy structure</li>
+                <li>I elicit requirements before any design work begins</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Business Operations ── -->
+  <section class="mb-4 reveal">
+    <div class="group-label">Business Operations</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- David -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip David card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="bizops">
+              <img src="../assets/agents/11-david.png" alt="David Robinson">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="bizops">
+              <span class="badge badge-bizops">Business Operations</span>
+              <div class="card-name">David</div>
+              <div class="card-realname">(David Robinson)</div>
+              <div class="card-tagline">Legal &amp; Business Architect. Naval Academy precision.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Contract intake and summary, business filing tracking</li>
+                <li>EWB compliance flags, deadline management</li>
+                <li>I flag issues for an attorney when needed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- John -->
+      <div class="flip agent-flip" role="button" tabindex="0" aria-label="Flip John card">
+        <div class="flip-inner">
+          <div class="flip-face">
+            <div class="agent-front" data-group="bizops">
+              <img src="../assets/agents/12-john.png" alt="John Stockton">
+              <div class="flip-icon" aria-hidden="true">↻</div>
+            </div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="agent-card" data-group="bizops">
+              <span class="badge badge-bizops">Business Operations</span>
+              <div class="card-name">John</div>
+              <div class="card-realname">(John Stockton)</div>
+              <div class="card-tagline">Accountant. Fundamentals, precision, no flash.</div>
+              <div class="card-call-label">Call me for</div>
+              <ul class="card-call-list">
+                <li>Expense and revenue logging, monthly reconciliation</li>
+                <li>P&amp;L summaries, Schedule C readiness</li>
+                <li>I keep the books so financial decisions are answerable in one query</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ════════════════════════ FOOTER ════════════════════════ -->
+<footer style="border-top:1px solid rgba(18,19,18,0.08);padding:28px 0;">
+  <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-3">
+    <div class="font-serif text-base font-semibold">
+      Model Sense<span style="color:var(--sand);">.</span>
+    </div>
+    <div style="font-size:11px;font-family:'Courier New',monospace;opacity:0.4;">
+      Internal team reference · Model Sense ALM · modelsensealm.com
+    </div>
+    <div style="font-size:11px;opacity:0.4;">&copy; 2026 Model Sense</div>
+  </div>
+</footer>
+
+<!-- ════════════════════════ SCROLL REVEAL + FLIP ════════════════════════ -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var observer = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      observer.observe(el);
+    });
+
+    document.querySelectorAll('.flip').forEach(function (card) {
+      card.addEventListener('click', function () {
+        card.classList.toggle('flipped');
+      });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.classList.toggle('flipped');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

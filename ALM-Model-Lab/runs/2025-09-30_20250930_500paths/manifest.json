@@ -1,0 +1,96 @@
+{
+  "run_id": "2025-09-30_20250930_500paths",
+  "calibration_date": "2025-09-30",
+  "currency": "USD",
+  "discounting_index": "SOFR_OIS",
+  "market_data_path": "C:\\Users\\deech\\AI\\Model-Sense\\ALM-Model-Lab\\research\\data\\market_2025-09-30.json",
+  "generated_utc": "2026-05-05T13:35:43.560900+00:00",
+  "seed": 20250930,
+  "n_paths": 500,
+  "n_pairs": 250,
+  "horizon_years": 30.0,
+  "dt_years": 0.08333333333333333,
+  "saved_tenors_years": [
+    0.002777777777777778,
+    0.08333333333333333,
+    0.25,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    7.0,
+    10.0,
+    20.0,
+    30.0
+  ],
+  "saved_tenor_labels": [
+    "1D",
+    "1M",
+    "3M",
+    "6M",
+    "1Y",
+    "2Y",
+    "5Y",
+    "7Y",
+    "10Y",
+    "20Y",
+    "30Y"
+  ],
+  "hw": {
+    "a": 0.00010000000000000002,
+    "sigma": 0.00821974381342,
+    "rmse_bp": 5.401702709052773,
+    "fit_success": true,
+    "fit_iterations": 6
+  },
+  "bgm": {
+    "a": 0.5327395071704917,
+    "b": 0.21587389518134778,
+    "c": 0.4979933622230505,
+    "d": 0.7293611376008653,
+    "beta": 1.5362516418075576e-07,
+    "vol_scalar": 0.24034437409569576,
+    "rmse_bp": 6.70973178883465,
+    "fit_success": true,
+    "fit_iterations": 701,
+    "discretization": "predictor_corrector_hjj2001",
+    "f_floor": 1e-08,
+    "f_ceiling": 2.0
+  },
+  "martingale": {
+    "method": "multiplicative_glasserman_4_5",
+    "hw_corrected_max_df_err_bp": 2.220446049250313e-12,
+    "hw_uncorrected_max_df_err_bp": 1093.888306618433,
+    "bgm_corrected_max_df_err_bp": 2.220446049250313e-12
+  },
+  "outputs": {
+    "paths_hw": [
+      "paths_hw_1D.csv",
+      "paths_hw_1M.csv",
+      "paths_hw_3M.csv",
+      "paths_hw_6M.csv",
+      "paths_hw_1Y.csv",
+      "paths_hw_2Y.csv",
+      "paths_hw_5Y.csv",
+      "paths_hw_7Y.csv",
+      "paths_hw_10Y.csv",
+      "paths_hw_20Y.csv",
+      "paths_hw_30Y.csv"
+    ],
+    "paths_bgm": [
+      "paths_bgm_1D.csv",
+      "paths_bgm_1M.csv",
+      "paths_bgm_3M.csv",
+      "paths_bgm_6M.csv",
+      "paths_bgm_1Y.csv",
+      "paths_bgm_2Y.csv",
+      "paths_bgm_5Y.csv",
+      "paths_bgm_7Y.csv",
+      "paths_bgm_10Y.csv",
+      "paths_bgm_20Y.csv",
+      "paths_bgm_30Y.csv"
+    ],
+    "calibration_report": "calibration_report.txt",
+    "martingale_diagnostic": "martingale_diagnostic_hw.csv"
+  }
+}
