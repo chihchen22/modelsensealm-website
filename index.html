@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Model Sense | ALM Behavioral Modeling, the Model Lab & the Book</title>
+    <title>Model Sense | ALM Behavioral Modeling, the Model Lab &amp; the Book</title>
     <meta name="description" content="Model Sense connects ALM modeling knowledge to practical use: a practitioner book under contract with Palgrave Macmillan, an interactive ALM Model Lab, and a deposit-modeling masterclass for bank treasury and risk teams.">
     <link rel="canonical" href="https://modelsensealm.com/">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Model Sense">
-    <meta property="og:title" content="Model Sense | ALM Behavioral Modeling, the Model Lab & the Book">
+    <meta property="og:title" content="Model Sense | ALM Behavioral Modeling, the Model Lab &amp; the Book">
     <meta property="og:description" content="A practitioner book under contract with Palgrave Macmillan, an interactive ALM Model Lab, and a deposit-modeling masterclass for bank treasury and risk teams.">
     <meta property="og:url" content="https://modelsensealm.com/">
     <meta property="og:image" content="https://modelsensealm.com/assets/og-card.png">
@@ -24,391 +24,745 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Tailwind utilities compiled statically (theme lives in ../tailwind.config.js;
-         rebuild after editing this file:
-         npx --yes tailwindcss@3.4.17 -c tailwind.config.js -i tw-input.css -o build/assets/site.css --minify) -->
-    <link rel="stylesheet" href="assets/site.css">
-
+    <!-- All styles are hand-written and inlined below; no framework, no external stylesheet. -->
     <style>
+        /* ── Tokens ──────────────────────────────────────────────── */
         :root {
             --obsidian:     #121312;
-            --cloud-dancer: #F6F6F4;
+            --cloud:        #F6F6F4;
             --sand:         #D1CBC1;
-            --node-teal:    #2B7A78;
-            --node-green:   #3D7A42;
-            --node-orange:  #C86A3A;
-            --node-purple:  #7050A0;
-            --font-serif:   'Playfair Display', Georgia, serif;
-            --font-sans:    'Sora', system-ui, sans-serif;
+            --teal:         #2B7A78;
+            --green:        #3D7A42;
+            --orange:       #C86A3A;
+            --purple:       #7050A0;
+
+            /* Derived inks (shades and alphas of the core palette only) */
+            --ink-85:       rgba(18,19,18,0.85);
+            --ink-70:       rgba(18,19,18,0.70);
+            --hairline:     rgba(18,19,18,0.12);
+            --hairline-lt:  rgba(18,19,18,0.07);
+            --sand-ink:     #6E675C;              /* shade of sand, AA on light ground */
+            --teal-deep:    #226361;              /* shade of teal for hover text */
+            --cloud-85:     rgba(246,246,244,0.85);
+            --cloud-70:     rgba(246,246,244,0.70);
+            --cloud-hair:   rgba(246,246,244,0.16);
+
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans:  'Sora', system-ui, sans-serif;
+
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-reveal: cubic-bezier(0.5, 0, 0, 1);
+
+            --pad-x: clamp(24px, 5vw, 64px);
+            --measure: 42rem;
         }
 
-        html { scroll-padding-top: 96px; }
-        html, body { overflow-x: hidden; }
+        /* ── Reset & ground ──────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-padding-top: 92px; }
+        html, body { overflow-x: clip; }
         body {
+            font-family: var(--sans);
+            font-weight: 300;
+            font-size: 16px;
+            line-height: 1.75;
+            background: var(--cloud);
+            color: var(--obsidian);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        img, svg { display: block; max-width: 100%; }
+        a { color: inherit; }
+        ::selection { background: var(--obsidian); color: var(--cloud); }
 
-        ::selection {
-            background-color: var(--obsidian);
-            color: var(--cloud-dancer);
-        }
+        h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; line-height: 1.12; text-wrap: balance; }
+        p { text-wrap: pretty; }
 
-        /* Scroll-reveal pattern (hidden state gated on the .js html class so
-           content stays visible when JavaScript is blocked or fails) */
-        .js .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s cubic-bezier(0.5, 0, 0, 1),
-                        transform 0.8s cubic-bezier(0.5, 0, 0, 1);
-        }
-        .js .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Visible keyboard focus (UA outline is suppressed by Tailwind preflight on some controls) */
         a:focus-visible, button:focus-visible {
-            outline: 2px solid var(--node-teal);
-            outline-offset: 2px;
+            outline: 2px solid var(--teal);
+            outline-offset: 3px;
+            border-radius: 1px;
         }
 
-        /* Skip link: visually hidden until focused */
         .skip-link {
-            position: fixed;
-            top: 8px; left: 8px;
-            z-index: 60;
+            position: fixed; top: 10px; left: 10px; z-index: 90;
             padding: 10px 18px;
-            background: var(--obsidian);
-            color: var(--cloud-dancer);
-            font-size: 13px;
-            text-decoration: none;
-            transform: translateY(-200%);
+            background: var(--obsidian); color: var(--cloud);
+            font-size: 13px; text-decoration: none;
+            transform: translateY(-250%);
         }
         .skip-link:focus { transform: translateY(0); }
 
+        .wrap { max-width: 1200px; margin: 0 auto; padding-left: var(--pad-x); padding-right: var(--pad-x); }
+
+        /* ── Section ledger label ────────────────────────────────── */
+        .sec-label {
+            display: flex; align-items: center; gap: 14px;
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 0.24em; text-transform: uppercase;
+            color: var(--sand-ink);
+            margin-bottom: 28px;
+        }
+        .sec-label .n { order: 0; font-weight: 600; letter-spacing: 0.08em; }
+        .sec-label::before { content: ''; order: 1; width: 34px; height: 1px; background: var(--sand); }
+        .sec-label .t { order: 2; }
+        .on-dark .sec-label { color: var(--sand); }
+        .on-dark .sec-label::before { background: rgba(209,203,193,0.45); }
+
+        /* ── Buttons ─────────────────────────────────────────────── */
+        .btn-ghost, .btn-ghost-inv, .btn-filled {
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: var(--sans); font-weight: 400;
+            font-size: 13px; letter-spacing: 0.05em;
+            text-decoration: none; cursor: pointer;
+            border-radius: 2px;
+            transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+        }
+        .btn-ghost { padding: 12px 26px; border: 1px solid var(--obsidian); color: var(--obsidian); background: transparent; }
+        .btn-ghost:hover { background: var(--obsidian); color: var(--cloud); }
+        .btn-ghost-inv { padding: 14px 34px; border: 1px solid var(--cloud); color: var(--cloud); background: transparent; }
+        .btn-ghost-inv:hover { background: var(--cloud); color: var(--obsidian); }
+        .btn-filled { padding: 16px 42px; background: var(--obsidian); color: var(--cloud); border: 1px solid var(--obsidian); }
+        .btn-filled:hover { opacity: 0.84; }
+
+        .btn-arrow {
+            display: inline-flex; align-items: center; gap: 12px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.11em;
+            text-transform: uppercase; text-decoration: none; cursor: pointer;
+        }
+        .btn-arrow svg { transition: transform 0.3s var(--ease-out); }
+        .btn-arrow:hover svg, .btn-arrow:focus-visible svg { transform: translateX(6px); }
+        .btn-arrow.quiet { color: var(--ink-70); transition: color 0.3s; }
+        .btn-arrow.quiet:hover { color: var(--obsidian); }
+
+        /* ── Nav ─────────────────────────────────────────────────── */
+        #progress {
+            position: fixed; top: 0; left: 0; z-index: 70;
+            height: 2px; width: 0;
+            background: var(--sand);
+        }
+        nav#nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+            background: rgba(246,246,244,0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--hairline-lt);
+            transition: box-shadow 0.35s ease;
+        }
+        nav#nav.scrolled { box-shadow: 0 1px 24px rgba(18,19,18,0.06); }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto;
+            padding: 20px var(--pad-x);
+            display: flex; align-items: center; justify-content: space-between; gap: 24px;
+            transition: padding 0.4s var(--ease-out);
+        }
+        nav#nav.scrolled .nav-inner { padding-top: 12px; padding-bottom: 12px; }
+
+        .lockup { display: inline-flex; align-items: center; text-decoration: none; }
+        .lockup img { height: 62px; width: auto; transition: height 0.4s var(--ease-out); }
+        nav#nav.scrolled .lockup img { height: 50px; }
+        @media (max-width: 560px) { .lockup img { height: 52px; } nav#nav.scrolled .lockup img { height: 46px; } }
+
+        .nav-links { display: none; align-items: center; gap: 30px; }
+        .nav-links a {
+            position: relative;
+            font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
+            text-decoration: none; color: var(--ink-85);
+            padding: 4px 0;
+            transition: color 0.3s;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+            height: 1px; background: var(--teal);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.35s var(--ease-out);
+        }
+        .nav-links a:hover { color: var(--teal-deep); }
+        .nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); }
+
+        .nav-cta { display: none; }
+        @media (min-width: 1024px) {
+            .nav-links { display: flex; }
+            .nav-cta { display: inline-flex; font-size: 12px; padding: 10px 22px; }
+            nav#nav #menu-btn { display: none; }
+        }
+
+        #menu-btn {
+            appearance: none; background: none; border: 0; cursor: pointer;
+            width: 44px; height: 44px; margin-right: -10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--obsidian);
+        }
+        #menu-btn .bars { position: relative; width: 22px; height: 14px; display: block; }
+        #menu-btn .bars span {
+            position: absolute; left: 0; width: 100%; height: 1.5px;
+            background: currentColor; display: block;
+        }
+        #menu-btn .bars span:nth-child(1) { top: 0; }
+        #menu-btn .bars span:nth-child(2) { top: 6.25px; }
+        #menu-btn .bars span:nth-child(3) { top: 12.5px; }
+
+        /* ── Mobile overlay menu ─────────────────────────────────── */
+        #overlay {
+            position: fixed; inset: 0; z-index: 80;
+            background: var(--obsidian); color: var(--cloud);
+            display: flex; flex-direction: column;
+            padding: 24px var(--pad-x) 40px;
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.4s var(--ease-out), visibility 0s linear 0.4s;
+        }
+        #overlay.open {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transition: opacity 0.4s var(--ease-out);
+        }
+        .overlay-top { display: flex; align-items: center; justify-content: space-between; }
+        .overlay-top .wordmark {
+            font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: -0.01em;
+        }
+        .overlay-top .wordmark span { color: var(--sand); }
+        #overlay-close {
+            appearance: none; background: none; border: 0; cursor: pointer;
+            width: 44px; height: 44px; margin-right: -10px; color: var(--cloud);
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .overlay-links { margin: auto 0; display: flex; flex-direction: column; }
+        .overlay-links a {
+            display: flex; align-items: baseline; gap: 18px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--cloud-hair);
+            text-decoration: none;
+        }
+        .overlay-links a:first-child { border-top: 1px solid var(--cloud-hair); }
+        .overlay-links .num {
+            font-size: 11px; font-weight: 600; letter-spacing: 0.18em; color: var(--sand);
+            min-width: 26px;
+        }
+        .overlay-links .name {
+            font-family: var(--serif); font-size: clamp(26px, 7vw, 34px); font-weight: 500; color: var(--cloud);
+        }
+        .js #overlay.open .overlay-links a { animation: ovIn 0.5s var(--ease-out) both; }
+        .js #overlay.open .overlay-links a:nth-child(1) { animation-delay: 0.05s; }
+        .js #overlay.open .overlay-links a:nth-child(2) { animation-delay: 0.10s; }
+        .js #overlay.open .overlay-links a:nth-child(3) { animation-delay: 0.15s; }
+        .js #overlay.open .overlay-links a:nth-child(4) { animation-delay: 0.20s; }
+        .js #overlay.open .overlay-links a:nth-child(5) { animation-delay: 0.25s; }
+        .js #overlay.open .overlay-links a:nth-child(6) { animation-delay: 0.30s; }
+        @keyframes ovIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        .overlay-foot { display: flex; flex-direction: column; gap: 14px; }
+        .overlay-foot .btn-ghost-inv { align-self: flex-start; }
+        .overlay-foot p { font-size: 12px; color: var(--cloud-70); }
+
+        /* ── Hero ────────────────────────────────────────────────── */
+        .hero {
+            position: relative;
+            min-height: 100svh;
+            display: flex; flex-direction: column; justify-content: center;
+            padding-top: 150px; padding-bottom: 48px;
+            overflow: clip;
+        }
+        /* Chart-paper quadrille, fading toward the lower left */
+        .hero::before {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(var(--hairline-lt) 1px, transparent 1px),
+                linear-gradient(90deg, var(--hairline-lt) 1px, transparent 1px);
+            background-size: 56px 56px;
+            -webkit-mask-image: radial-gradient(120% 100% at 78% 18%, #000 30%, transparent 78%);
+            mask-image: radial-gradient(120% 100% at 78% 18%, #000 30%, transparent 78%);
+            pointer-events: none;
+        }
+        .hero-grid {
+            position: relative; z-index: 1;
+            display: grid; grid-template-columns: 1fr; gap: 40px;
+            align-items: center;
+        }
+        @media (min-width: 1024px) {
+            .hero-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.6rem, 6vw, 5.3rem);
+            letter-spacing: -0.015em;
+            line-height: 1.06;
+            margin: 22px 0 30px;
+        }
+        @media (max-width: 560px) {
+            .hero .sec-label .n { display: none; }
+        }
+        .hero h1 em { font-style: italic; color: var(--ink-85); }
+        .hero .lede {
+            max-width: var(--measure);
+            font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+            color: var(--ink-85);
+            margin-bottom: 40px;
+        }
+        .hero-ctas { display: flex; flex-wrap: wrap; gap: 22px 40px; align-items: center; }
+
+        /* Load-in cascade */
+        .js .rise { opacity: 0; transform: translateY(26px); animation: rise 0.9s var(--ease-reveal) forwards; }
+        .js .rise.d1 { animation-delay: 0.10s; }
+        .js .rise.d2 { animation-delay: 0.25s; }
+        .js .rise.d3 { animation-delay: 0.40s; }
+        .js .rise.d4 { animation-delay: 0.55s; }
+        @keyframes rise { to { opacity: 1; transform: none; } }
+
+        /* Rate-path fan (decorative, code-drawn) */
+        .fan { width: 100%; height: auto; }
+        .fan .base { stroke: var(--obsidian); opacity: 0.22; stroke-width: 1.2; fill: none; }
+        .fan .flat { stroke: var(--obsidian); opacity: 0.32; stroke-width: 1; fill: none; stroke-dasharray: 2 6; }
+        .fan .acc  { stroke-width: 2.2; fill: none; }
+        .fan .dot  { opacity: 0; }
+        .js .fan .draw {
+            stroke-dasharray: 1; stroke-dashoffset: 1;
+            animation: fandraw 1.7s var(--ease-reveal) forwards;
+        }
+        .js .fan .acc.draw { animation-duration: 2.1s; }
+        .js .fan .dot { animation: dotin 0.6s ease-out forwards; animation-delay: 2.0s; }
+        @keyframes fandraw { to { stroke-dashoffset: 0; } }
+        @keyframes dotin { to { opacity: 1; } }
+        .fan-wrap { position: relative; display: none; }
+        @media (min-width: 1024px) { .fan-wrap { display: block; } }
+        .fan-origin {
+            position: absolute; left: 0; top: 58%;
+            font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--sand-ink);
+        }
+
+        /* Contents index */
+        .contents { margin-top: clamp(48px, 7vh, 88px); position: relative; z-index: 1; }
+        .contents-head {
+            display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+            border-bottom: 1px solid var(--hairline);
+            padding-bottom: 10px;
+        }
+        .contents-head .t {
+            font-size: 11px; font-weight: 600; letter-spacing: 0.24em;
+            text-transform: uppercase; color: var(--sand-ink);
+        }
+        .contents-rows { display: grid; grid-template-columns: 1fr; }
+        @media (min-width: 820px) { .contents-rows { grid-template-columns: repeat(3, 1fr); } }
+        .contents a {
+            position: relative;
+            display: flex; flex-direction: column; gap: 6px;
+            padding: 22px 26px 24px 0;
+            border-bottom: 1px solid var(--hairline);
+            text-decoration: none;
+        }
+        @media (min-width: 820px) {
+            .contents a { border-bottom: none; border-right: 1px solid var(--hairline); padding: 24px 28px 8px 0; }
+            .contents a + a { padding-left: 28px; }
+            .contents a:last-child { border-right: none; }
+        }
+        .contents .kicker {
+            display: inline-flex; align-items: center; gap: 9px;
+            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--sand-ink);
+        }
+        .contents .kicker::before {
+            content: ''; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--dot, var(--sand));
+        }
+        .contents .name { font-family: var(--serif); font-size: 24px; font-weight: 500; line-height: 1.2; }
+        .contents .name .go {
+            display: inline-block; margin-left: 10px;
+            transition: transform 0.3s var(--ease-out), color 0.3s;
+            color: var(--sand-ink); font-family: var(--sans); font-size: 15px;
+        }
+        .contents a:hover .go, .contents a:focus-visible .go { transform: translateX(5px); color: var(--teal); }
+        .contents .desc { font-size: 13.5px; color: var(--ink-70); line-height: 1.6; max-width: 30ch; }
+
+        /* ── Generic section rhythm ──────────────────────────────── */
+        section.band { padding: clamp(88px, 12vh, 132px) 0; }
+        section.band.on-dark { background: var(--obsidian); color: var(--cloud); }
+        .band-rule { border-top: 1px solid var(--hairline); }
+
+        h2.sec-title { font-size: clamp(2.1rem, 4.2vw, 3.3rem); margin-bottom: 28px; }
+
+        /* Scroll reveal (gated on .js so content shows if JS fails) */
+        .js .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.85s var(--ease-reveal), transform 0.85s var(--ease-reveal); }
+        .js .reveal.active { opacity: 1; transform: none; }
+
+        /* ── About ───────────────────────────────────────────────── */
+        .about-grid { display: grid; grid-template-columns: 1fr; gap: 52px; }
+        @media (min-width: 1024px) { .about-grid { grid-template-columns: 4fr 7fr; gap: 88px; } }
+        .about-name { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-bottom: 4px; }
+        .about-role { font-size: 14px; color: var(--ink-70); margin-bottom: 20px; }
+        .creds { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 34px; }
+        .cred {
+            font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 7px 13px; border-radius: 2px;
+            background: rgba(209,203,193,0.32); color: var(--obsidian);
+        }
+        .pull-quote {
+            font-family: var(--serif); font-style: italic;
+            font-size: 21px; line-height: 1.5; color: var(--ink-85);
+            border-left: 2px solid var(--sand); padding-left: 22px;
+        }
+        .prose { display: flex; flex-direction: column; gap: 24px; max-width: var(--measure); }
+        .prose p { font-size: clamp(1rem, 1.35vw, 1.11rem); color: var(--ink-85); }
+        .on-dark .prose p { color: var(--cloud-85); }
+
+        /* ── Colophon rows (metadata table) ──────────────────────── */
+        .colophon { border-top: 1px solid var(--cloud-hair); margin: 34px 0 38px; }
+        .colophon > div {
+            display: grid; grid-template-columns: 132px 1fr; gap: 18px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--cloud-hair);
+            font-size: 14px;
+        }
+        .colophon dt {
+            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--sand);
+            align-self: baseline; padding-top: 3px;
+        }
+        .colophon dd { color: var(--cloud-85); font-weight: 300; }
+
+        /* ── Book ────────────────────────────────────────────────── */
+        .book-grid { display: grid; grid-template-columns: 1fr; gap: 64px; align-items: center; }
+        @media (min-width: 1024px) { .book-grid { grid-template-columns: 7fr 5fr; gap: 88px; } }
+        .book-sub {
+            font-family: var(--serif); font-style: italic; font-weight: 400;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem); line-height: 1.45;
+            color: var(--sand); margin-bottom: 30px;
+        }
+        .book-cover-col { display: flex; justify-content: center; }
+        @media (min-width: 1024px) { .book-cover-col { justify-content: flex-end; } }
+        .book-cover {
+            width: min(300px, 78vw); aspect-ratio: 2 / 3;
+            display: flex; flex-direction: column;
+            background: linear-gradient(168deg, #2F8784 0%, #2B7A78 42%, #1E5755 100%);
+            position: relative; overflow: hidden; border-radius: 3px;
+            box-shadow: -18px 26px 60px rgba(0,0,0,0.45);
+            transition: transform 0.5s var(--ease-out);
+        }
+        .book-cover:hover { transform: translateY(-8px) rotate(-0.5deg); }
+        .book-cover::after {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 14px;
+            background: linear-gradient(90deg, rgba(246,246,244,0.22), rgba(246,246,244,0) 90%);
+            pointer-events: none;
+        }
+        .cover-band {
+            margin-top: 9%;
+            background: var(--cloud);
+            padding: 10px 26px;
+            border-top: 1px solid rgba(18,19,18,0.12);
+            border-bottom: 1px solid rgba(18,19,18,0.12);
+        }
+        .cover-band p { font-family: var(--serif); font-size: 15px; color: var(--obsidian); letter-spacing: 0.08em; }
+        .cover-title { padding: 26px 26px 0; position: relative; z-index: 2; }
+        .cover-title .t1 { font-family: var(--serif); font-size: 26px; line-height: 1.25; color: var(--cloud); margin-bottom: 14px; }
+        .cover-title .t2 { font-family: var(--serif); font-style: italic; font-size: 12.5px; line-height: 1.55; color: rgba(246,246,244,0.9); }
+        .cover-motif { position: absolute; bottom: 12%; left: 0; right: 0; opacity: 0.2; pointer-events: none; }
+        .cover-imprint { margin-top: auto; padding: 0 26px 20px; position: relative; z-index: 2; }
+        .cover-imprint::before { content: ''; display: block; width: 36px; height: 1px; background: rgba(246,246,244,0.55); margin-bottom: 10px; }
+        .cover-imprint p { font-family: var(--serif); font-size: 13px; line-height: 1.25; color: rgba(246,246,244,0.95); }
+
+        /* ── Lab ─────────────────────────────────────────────────── */
+        .lab-intro { max-width: 46rem; margin-bottom: 56px; }
+        .lab-intro .prose { max-width: none; }
+        .lab-cards { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 72px; }
+        @media (min-width: 700px)  { .lab-cards { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 1100px) { .lab-cards { grid-template-columns: repeat(4, 1fr); } }
+        .lab-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid var(--hairline-lt);
+            border-radius: 3px;
+            padding: 30px 28px 32px;
+            overflow: hidden;
+            transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), border-color 0.4s ease;
+        }
+        .lab-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: var(--accent, var(--sand));
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.45s var(--ease-out);
+        }
+        .lab-card:hover { transform: translateY(-5px); box-shadow: 0 20px 48px rgba(18,19,18,0.10); border-color: var(--hairline); }
+        .lab-card:hover::before { transform: scaleX(1); }
+        .lab-card .glyph { height: 34px; margin-bottom: 22px; }
+        .lab-card .glyph svg { height: 100%; width: auto; stroke: var(--accent, var(--sand)); }
+        .lab-card .idx {
+            position: absolute; top: 26px; right: 26px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.2em; color: var(--sand-ink);
+        }
+        .lab-card h3 { font-size: 23px; margin-bottom: 12px; }
+        .lab-card p { font-size: 14px; line-height: 1.7; color: var(--ink-70); }
+
+        .lab-lower { display: grid; grid-template-columns: 1fr; gap: 48px; }
+        @media (min-width: 1024px) { .lab-lower { grid-template-columns: 1fr 1fr; gap: 80px; } }
+        .roadmap { background: var(--obsidian); color: var(--cloud); padding: 44px 44px 40px; border-radius: 3px; }
+        @media (max-width: 520px) { .roadmap { padding: 32px 28px 30px; } }
+        .roadmap-item { position: relative; padding: 24px 0 24px 30px; border-top: 1px solid var(--cloud-hair); }
+        .roadmap-item::before {
+            content: ''; position: absolute; left: 0; top: 32px;
+            width: 9px; height: 9px; border: 1.5px solid var(--sand); border-radius: 50%;
+        }
+        .roadmap-item.first { border-top: none; padding-top: 0; }
+        .roadmap-item.first::before { top: 8px; }
+        .roadmap-item h4 { font-size: 20px; margin-bottom: 6px; }
+        .roadmap-item p { font-size: 14px; line-height: 1.7; color: var(--cloud-70); }
+        .lab-cta { display: flex; flex-direction: column; justify-content: center; }
+        .lab-cta h3 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin-bottom: 18px; }
+        .lab-cta > p { font-size: 15.5px; color: var(--ink-85); max-width: 34rem; margin-bottom: 32px; }
+        .lab-cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; }
+        .lab-cta-row .fine { font-size: 12px; color: var(--ink-70); }
+
+        /* ── Masterclass ─────────────────────────────────────────── */
+        .mc-grid { display: grid; grid-template-columns: 1fr; gap: 56px; align-items: start; }
+        @media (min-width: 1024px) { .mc-grid { grid-template-columns: 7fr 5fr; gap: 88px; } }
+        .covers-panel { border: 1px solid var(--cloud-hair); border-radius: 3px; padding: 38px 40px; }
+        @media (max-width: 520px) { .covers-panel { padding: 30px 26px; } }
+        .covers-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+        .covers-list li {
+            position: relative; padding-left: 20px;
+            font-size: 14.5px; line-height: 1.65; color: var(--cloud-85);
+        }
+        .covers-list li::before {
+            content: ''; position: absolute; left: 0; top: 12px;
+            width: 9px; height: 1px; background: var(--sand);
+        }
+
+        /* ── Writing ─────────────────────────────────────────────── */
+        .writing-head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 58px; }
+        @media (min-width: 900px) { .writing-head { flex-direction: row; justify-content: space-between; align-items: flex-end; } }
+        .writing-head .blurb { max-width: 26rem; font-size: 15px; color: var(--ink-70); }
+        .paper { display: block; text-decoration: none; }
+        .paper-inner {
+            display: grid; grid-template-columns: 1fr; gap: 10px;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--hairline);
+            transition: transform 0.4s var(--ease-out);
+        }
+        @media (min-width: 900px) {
+            .paper-inner { grid-template-columns: 84px 1fr auto; gap: 0 28px; align-items: baseline; }
+        }
+        .paper:hover .paper-inner, .paper:focus-visible .paper-inner { transform: translateX(10px); }
+        .paper .num {
+            font-family: var(--serif); font-size: 34px; font-weight: 400;
+            color: var(--sand-ink); line-height: 1;
+            transition: color 0.3s;
+        }
+        .paper:hover .num { color: var(--teal); }
+        .paper .venue {
+            display: block;
+            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--sand-ink); margin-bottom: 8px;
+        }
+        .paper h3 {
+            font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 500;
+            margin-bottom: 8px; transition: color 0.3s;
+        }
+        .paper:hover h3 { color: var(--teal-deep); }
+        .paper .abs { display: block; font-size: 14px; line-height: 1.7; color: var(--ink-70); max-width: 52rem; }
+        .paper .read { align-self: center; white-space: nowrap; }
+        @media (max-width: 899px) { .paper .num { font-size: 26px; } .paper .read { margin-top: 6px; } }
+
+        /* ── Contact ─────────────────────────────────────────────── */
+        .contact {
+            position: relative;
+            text-align: center;
+            padding: clamp(100px, 14vh, 150px) 0;
+            overflow: clip;
+        }
+        .contact::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(var(--hairline-lt) 1px, transparent 1px),
+                linear-gradient(90deg, var(--hairline-lt) 1px, transparent 1px);
+            background-size: 56px 56px;
+            -webkit-mask-image: radial-gradient(70% 90% at 50% 100%, #000 20%, transparent 75%);
+            mask-image: radial-gradient(70% 90% at 50% 100%, #000 20%, transparent 75%);
+            pointer-events: none;
+        }
+        .contact .wrap { position: relative; }
+        .contact h2 { font-size: clamp(2.4rem, 5.5vw, 4.2rem); margin-bottom: 26px; }
+        .contact p { max-width: 34rem; margin: 0 auto 40px; font-size: 1.08rem; color: var(--ink-85); }
+
+        /* ── Footer ──────────────────────────────────────────────── */
+        footer { border-top: 1px solid var(--hairline); padding: 52px 0 44px; }
+        .foot-legal {
+            font-size: 12px; line-height: 1.8; color: var(--ink-70);
+            padding-bottom: 30px; margin-bottom: 30px;
+            border-bottom: 1px solid var(--hairline-lt);
+        }
+        .foot-row { display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center; }
+        @media (min-width: 900px) { .foot-row { flex-direction: row; justify-content: space-between; text-align: left; } }
+        .foot-mark { font-family: var(--serif); font-size: 20px; font-weight: 600; }
+        .foot-mark span { color: var(--sand); }
+        .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; font-size: 13.5px; }
+        .foot-links a { text-decoration: none; transition: color 0.3s; }
+        .foot-links a:hover { color: var(--teal-deep); }
+        .foot-copy { font-size: 13px; color: var(--ink-70); }
+
+        /* ── Reduced motion ──────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
-            .js .reveal { opacity: 1; transform: none; transition: none; }
+            .js .rise, .js .reveal { opacity: 1; transform: none; animation: none; transition: none; }
+            .js .fan .draw { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
+            .js .fan .dot { animation: none; opacity: 1; }
+            .js #overlay.open .overlay-links a { animation: none; }
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
         }
-
-        /* Section category label */
-        .group-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--sand);
-        }
-        .group-label.dim { color: rgba(18,19,18,0.7); }
-
-        /* Hero atmospheric node network */
-        .node-atmosphere {
-            position: absolute;
-            top: 12%;
-            right: -4%;
-            width: 46vw;
-            max-width: 640px;
-            opacity: 0.16;
-            pointer-events: none;
-            z-index: 0;
-        }
-        @media (max-width: 900px) { .node-atmosphere { opacity: 0.10; right: -20%; } }
-
-        /* Nav logo */
-        .ms-logo { height: 90px; width: auto; display: block; }
-
-        /* Metadata chip */
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.04em;
-            padding: 6px 12px;
-            border: 1px solid rgba(18,19,18,0.16);
-            border-radius: 2px;
-            color: rgba(18,19,18,0.7);
-        }
-        .chip.on-dark {
-            border-color: rgba(246,246,244,0.22);
-            color: rgba(246,246,244,0.78);
-        }
-
-        /* Credential chip (sand fill) */
-        .cred {
-            display: inline-flex;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            padding: 6px 12px;
-            background: rgba(209,203,193,0.30);
-            color: var(--obsidian);
-            border-radius: 2px;
-        }
-
-        /* "What it covers" list (CSS bullet; no em-dash glyphs) */
-        .covers-list { list-style: none; }
-        .covers-list li { position: relative; padding-left: 18px; }
-        .covers-list li::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 11px;
-            width: 8px; height: 1px;
-            background: var(--sand);
-        }
-
-        /* Lab capability card with node-color accent */
-        .lab-card {
-            position: relative;
-            padding: 32px;
-            background: #fff;
-            border: 1px solid rgba(18,19,18,0.10);
-            overflow: hidden;
-            transition: transform 0.4s cubic-bezier(.16,1,.3,1),
-                        box-shadow 0.4s cubic-bezier(.16,1,.3,1),
-                        border-color 0.4s ease;
-        }
-        .lab-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--accent, var(--sand));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.45s cubic-bezier(.16,1,.3,1);
-        }
-        .lab-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 44px rgba(18,19,18,0.10);
-            border-color: rgba(18,19,18,0.18);
-        }
-        .lab-card:hover::before { transform: scaleX(1); }
-        .lab-card .lab-card-num {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.2em;
-            color: var(--accent, var(--sand));
-        }
-
-        /* Roadmap item */
-        .roadmap-item {
-            position: relative;
-            padding: 24px 0 24px 28px;
-            border-top: 1px solid rgba(246,246,244,0.12);
-        }
-        .roadmap-item::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 30px;
-            width: 9px; height: 9px;
-            border: 1.5px solid var(--sand);
-            border-radius: 50%;
-        }
-        .roadmap-item.first { border-top: none; padding-top: 0; }
-        .roadmap-item.first::before { top: 6px; }
-
-        /* Research / paper row (transform, not padding, so hover never rewraps text) */
-        .research-row {
-            border-bottom: 1px solid rgba(18,19,18,0.10);
-            padding-bottom: 28px;
-            transition: transform 0.4s cubic-bezier(.16,1,.3,1);
-        }
-        .research-row:hover { transform: translateX(8px); }
-        .research-row:hover .research-title { color: var(--node-teal); }
-        .research-row:hover .btn-arrow svg { transform: translateX(6px); }
-        .research-title { transition: color 0.3s; }
-
-        /* Book cover CSS art (Palgrave-style: flat color field, cream author
-           band, serif title block, stacked lowercase imprint; brand palette only) */
-        .book-cover {
-            background: linear-gradient(168deg, #2F8784 0%, #2B7A78 42%, #1E5755 100%);
-            position: relative;
-            overflow: hidden;
-            box-shadow: -12px 18px 40px rgba(0,0,0,0.35);
-            transition: transform 0.5s ease;
-        }
-        .book-cover:hover { transform: scale(1.02) translateY(-6px); }
-        .cover-band {
-            margin-top: 9%;
-            background: var(--cloud-dancer);
-            padding: 10px 28px;
-            border-top: 1px solid rgba(18,19,18,0.12);
-            border-bottom: 1px solid rgba(18,19,18,0.12);
-        }
-        .cover-motif {
-            position: absolute;
-            bottom: 13%;
-            left: 0; right: 0;
-            width: 100%;
-            opacity: 0.20;
-            pointer-events: none;
-        }
-        .cover-imprint {
-            margin-top: auto;
-            padding: 0 28px 22px;
-            position: relative;
-            z-index: 10;
-        }
-        .cover-imprint::before {
-            content: '';
-            display: block;
-            width: 36px;
-            height: 1px;
-            background: rgba(246,246,244,0.55);
-            margin-bottom: 10px;
-        }
-
-        /* Buttons */
-        .btn-ghost, .btn-ghost-inv, .btn-filled {
-            display: inline-flex; align-items: center; justify-content: center;
-            font-family: var(--font-sans);
-            font-size: 13px; letter-spacing: 0.05em;
-            text-decoration: none; cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-ghost { padding: 12px 24px; border: 1px solid var(--obsidian); color: var(--obsidian); background: transparent; }
-        .btn-ghost:hover { background: var(--obsidian); color: var(--cloud-dancer); }
-        .btn-ghost-inv { padding: 14px 32px; border: 1px solid var(--cloud-dancer); color: var(--cloud-dancer); background: transparent; }
-        .btn-ghost-inv:hover { background: var(--cloud-dancer); color: var(--obsidian); }
-        .btn-filled { padding: 16px 40px; background: var(--obsidian); color: var(--cloud-dancer); border: none; }
-        .btn-filled:hover { opacity: 0.82; }
-
-        .btn-arrow {
-            display: inline-flex; align-items: center; gap: 12px;
-            font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
-            text-transform: uppercase; text-decoration: none; cursor: pointer;
-        }
-        .btn-arrow svg { transition: transform 0.3s; }
-        .btn-arrow:hover svg { transform: translateX(6px); }
-
-        /* Mobile menu */
-        #mobile-menu { display: none; }
-        #mobile-menu.open { display: block; }
-        /* A menu left open must not survive a resize into the desktop nav */
-        @media (min-width: 1024px) { #mobile-menu.open { display: none; } }
     </style>
 </head>
-<body class="bg-cloud-dancer text-obsidian font-sans overflow-x-hidden">
+<body>
 
     <a href="#top" class="skip-link">Skip to content</a>
+    <div id="progress" aria-hidden="true"></div>
 
-    <!-- ════════════════════ NAV ════════════════════ -->
-    <nav id="nav" class="fixed w-full top-0 z-50 bg-cloud-dancer/90 backdrop-blur-md border-b border-obsidian/5 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-6 md:px-12 py-3 flex items-center justify-between transition-all duration-300">
-            <a href="#top" aria-label="Model Sense home">
-                <img src="assets/logo.png" alt="Model Sense" class="ms-logo" width="547" height="232">
+    <!-- ═══════════════ NAV ═══════════════ -->
+    <nav id="nav" aria-label="Primary">
+        <div class="nav-inner">
+            <a href="#top" class="lockup" aria-label="Model Sense home">
+                <!-- Official brand lockup: brain mark + wordmark + strap (transparent PNG, master in owner-inbox) -->
+                <img src="assets/logo-lockup.png" alt="Model Sense, Intelligence &amp; Judgment" width="1278" height="331">
             </a>
-            <div class="hidden lg:flex items-center space-x-7 text-sm tracking-wide">
-                <a href="#about" class="hover:text-node-teal transition-colors duration-300">About</a>
-                <a href="#book" class="hover:text-node-teal transition-colors duration-300">The Book</a>
-                <a href="#lab" class="hover:text-node-teal transition-colors duration-300">ALM Model Lab</a>
-                <a href="#masterclass" class="hover:text-node-teal transition-colors duration-300">Masterclass</a>
-                <a href="#writing" class="hover:text-node-teal transition-colors duration-300">Writing</a>
-                <a href="#contact" class="hover:text-node-teal transition-colors duration-300">Contact</a>
-            </div>
-            <a href="./alm-model-lab/" class="btn-ghost hidden lg:inline-flex" style="font-size:12px;padding:10px 20px;">Launch the Lab</a>
 
-            <button id="menu-btn" class="lg:hidden text-obsidian" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#book">The Book</a>
+                <a href="#lab">ALM Model Lab</a>
+                <a href="#masterclass">Masterclass</a>
+                <a href="#writing">Writing</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <a href="./alm-model-lab/" class="btn-ghost nav-cta">Launch the Lab</a>
+
+            <button id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="overlay">
+                <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
             </button>
-        </div>
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="lg:hidden border-t border-obsidian/5 bg-cloud-dancer px-6 py-4">
-            <a href="#about" class="block py-3 text-sm">About</a>
-            <a href="#book" class="block py-3 text-sm">The Book</a>
-            <a href="#lab" class="block py-3 text-sm">ALM Model Lab</a>
-            <a href="#masterclass" class="block py-3 text-sm">Masterclass</a>
-            <a href="#writing" class="block py-3 text-sm">Writing</a>
-            <a href="#contact" class="block py-3 text-sm">Contact</a>
         </div>
     </nav>
 
-    <!-- ════════════════════ HERO ════════════════════ -->
-    <section id="top" class="relative overflow-hidden min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-40 md:pt-44 pb-20">
+    <!-- ═══════════════ MOBILE OVERLAY ═══════════════ -->
+    <div id="overlay" role="dialog" aria-modal="true" aria-label="Site menu">
+        <div class="overlay-top">
+            <span class="wordmark">Model Sense<span>.</span></span>
+            <button id="overlay-close" aria-label="Close menu">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M6 6l12 12M18 6L6 18"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="overlay-links">
+            <a href="#about"><span class="num">01</span><span class="name">About</span></a>
+            <a href="#book"><span class="num">02</span><span class="name">The Book</span></a>
+            <a href="#lab"><span class="num">03</span><span class="name">ALM Model Lab</span></a>
+            <a href="#masterclass"><span class="num">04</span><span class="name">Masterclass</span></a>
+            <a href="#writing"><span class="num">05</span><span class="name">Writing</span></a>
+            <a href="#contact"><span class="num">06</span><span class="name">Contact</span></a>
+        </div>
+        <div class="overlay-foot">
+            <a href="./alm-model-lab/" class="btn-ghost-inv">Launch the Lab</a>
+            <p>contact@modelsensealm.com</p>
+        </div>
+    </div>
 
-        <!-- Atmospheric node network (decorative) -->
-        <svg class="node-atmosphere" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-            <line x1="30" y1="40" x2="90" y2="20"  stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="90" y1="20" x2="160" y2="50" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="30" y1="40" x2="50" y2="110" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="90" y1="20" x2="110" y2="95" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="160" y1="50" x2="110" y2="95" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="50" y1="110" x2="110" y2="95" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="50" y1="110" x2="80" y2="170" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="110" y1="95" x2="150" y2="150" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <line x1="80" y1="170" x2="150" y2="150" stroke="#121312" stroke-width="0.6" opacity="0.5"/>
-            <circle cx="30"  cy="40"  r="5" fill="#2B7A78"/>
-            <circle cx="90"  cy="20"  r="5" fill="#3D7A42"/>
-            <circle cx="160" cy="50"  r="5" fill="#3D7A42"/>
-            <circle cx="110" cy="95"  r="5" fill="#C86A3A"/>
-            <circle cx="50"  cy="110" r="5" fill="#3D7A42"/>
-            <circle cx="150" cy="150" r="5" fill="#3D7A42"/>
-            <circle cx="80"  cy="170" r="5" fill="#7050A0"/>
-        </svg>
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <section id="top" class="hero">
+        <div class="wrap hero-grid">
+            <div>
+                <p class="sec-label rise d1"><span class="n">Model Sense</span><span class="t">Intelligence &amp; Judgment</span></p>
+                <h1 class="rise d2">Models are math.<br><em>Risk is human.</em></h1>
+                <p class="lede rise d3">
+                    Model Sense connects ALM modeling knowledge to practical use: a practitioner book, an interactive modeling lab, and a deposit-modeling masterclass for the bank treasury and risk teams who build, validate, and defend these models.
+                </p>
+                <div class="hero-ctas rise d4">
+                    <a href="#book" class="btn-arrow">
+                        <span>Explore the book</span>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                    <a href="./alm-model-lab/" class="btn-arrow quiet">
+                        <span>Launch the Lab</span>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                </div>
+            </div>
 
-        <div class="relative z-10 max-w-4xl opacity-0 animate-fade-in-up" style="animation-delay: 0.15s;">
-            <p class="group-label dim mb-6">Intelligence &amp; Judgment</p>
-            <h1 class="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[1.08] font-medium mb-8">
-                Models are math. <br class="hidden sm:inline">
-                <span class="italic text-obsidian/80">Risk is human.</span>
-            </h1>
-            <p class="text-lg md:text-xl font-light max-w-2xl leading-relaxed mb-12 text-obsidian/80 opacity-0 animate-fade-in-up" style="animation-delay: 0.35s;">
-                Model Sense connects ALM modeling knowledge to practical use: a practitioner book, an interactive modeling lab, and a deposit-modeling masterclass for the bank treasury and risk teams who build, validate, and defend these models.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-6 sm:gap-10 opacity-0 animate-fade-in-up" style="animation-delay: 0.55s;">
-                <a href="#book" class="btn-arrow">
-                    <span>Explore the book</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            <!-- Simulated-path fan: the house graphic language, drawn in code -->
+            <div class="fan-wrap rise d3" aria-hidden="true">
+                <svg class="fan" viewBox="0 0 760 560" fill="none">
+                    <path class="flat" d="M30 310 H 744"/>
+                    <g class="base">
+                        <path class="draw" pathLength="1" d="M30 310 C 220 306, 460 290, 730 250" style="animation-delay:.30s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 230 300, 470 260, 730 190" style="animation-delay:.36s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 240 296, 480 232, 730 140" style="animation-delay:.42s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 250 290, 500 208, 730 96"  style="animation-delay:.48s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 230 312, 470 318, 730 320" style="animation-delay:.54s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 230 318, 470 350, 730 380" style="animation-delay:.60s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 240 322, 480 384, 730 436" style="animation-delay:.66s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 250 328, 500 410, 730 490" style="animation-delay:.72s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 260 334, 520 440, 730 530" style="animation-delay:.78s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 260 284, 520 180, 730 60"  style="animation-delay:.84s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 210 308, 450 302, 730 288" style="animation-delay:.90s"/>
+                        <path class="draw" pathLength="1" d="M30 310 C 235 314, 475 334, 730 352" style="animation-delay:.96s"/>
+                    </g>
+                    <path class="acc draw" pathLength="1" stroke="#2B7A78" d="M30 310 C 245 292, 490 220, 730 118" style="animation-delay:.55s"/>
+                    <path class="acc draw" pathLength="1" stroke="#3D7A42" d="M30 310 C 235 304, 475 276, 730 222" style="animation-delay:.70s"/>
+                    <path class="acc draw" pathLength="1" stroke="#C86A3A" d="M30 310 C 240 320, 480 368, 730 410" style="animation-delay:.85s"/>
+                    <path class="acc draw" pathLength="1" stroke="#7050A0" d="M30 310 C 255 330, 505 424, 730 508" style="animation-delay:1.0s"/>
+                    <circle class="dot" cx="730" cy="118" r="4.5" fill="#2B7A78"/>
+                    <circle class="dot" cx="730" cy="222" r="4.5" fill="#3D7A42"/>
+                    <circle class="dot" cx="730" cy="410" r="4.5" fill="#C86A3A"/>
+                    <circle class="dot" cx="730" cy="508" r="4.5" fill="#7050A0"/>
+                    <circle cx="30" cy="310" r="4" fill="#121312"/>
+                </svg>
+                <span class="fan-origin">t = 0</span>
+            </div>
+        </div>
+
+        <!-- Contents index -->
+        <div class="wrap contents rise d4">
+            <div class="contents-head"><span class="t">On this page</span></div>
+            <div class="contents-rows">
+                <a href="#book" style="--dot: var(--teal);">
+                    <span class="kicker">The Book</span>
+                    <span class="name">Practical ALM Behavioral Modeling<span class="go" aria-hidden="true">&#8594;</span></span>
+                    <span class="desc">Under contract with Palgrave Macmillan; manuscript due January 2027.</span>
                 </a>
-                <a href="./alm-model-lab/" class="btn-arrow text-obsidian/70 hover:text-obsidian transition-colors">
-                    <span>Launch the Lab</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="#lab" style="--dot: var(--green);">
+                    <span class="kicker">Interactive</span>
+                    <span class="name">ALM Model Lab<span class="go" aria-hidden="true">&#8594;</span></span>
+                    <span class="desc">A browser-based modeling lab. No install; the assumptions stay visible.</span>
+                </a>
+                <a href="#masterclass" style="--dot: var(--orange);">
+                    <span class="kicker">Live training</span>
+                    <span class="name">Deposit Modeling for Bank ALM<span class="go" aria-hidden="true">&#8594;</span></span>
+                    <span class="desc">A live masterclass for treasury and risk teams.</span>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- ════════════════════ ABOUT ════════════════════ -->
-    <section id="about" class="py-28 md:py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-obsidian/10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-
-            <!-- Left rail -->
-            <div class="lg:col-span-4 reveal">
-                <p class="group-label dim mb-6">About</p>
-                <p class="font-serif text-3xl mb-2">Chih Chen</p>
-                <p class="text-sm font-light text-obsidian/70 mb-5">Creator, Model Sense · ALM modeling practitioner</p>
-                <div class="mb-8">
-                    <a href="https://www.linkedin.com/in/chih-chen-60a185/" target="_blank" rel="noopener" class="btn-arrow text-obsidian/70 hover:text-obsidian" style="font-size:12px;">
-                        <span>LinkedIn profile</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg>
-                    </a>
-                </div>
-                <div class="flex flex-wrap gap-2 mb-10">
+    <!-- ═══════════════ ABOUT ═══════════════ -->
+    <section id="about" class="band band-rule">
+        <div class="wrap about-grid">
+            <div class="reveal">
+                <p class="sec-label"><span class="n">01</span><span class="t">About</span></p>
+                <p class="about-name">Chih Chen</p>
+                <p class="about-role">Creator, Model Sense · ALM modeling practitioner</p>
+                <a href="https://www.linkedin.com/in/chih-chen-60a185/" target="_blank" rel="noopener" class="btn-arrow quiet" style="font-size:12px;">
+                    <span>LinkedIn profile</span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg>
+                </a>
+                <div class="creds">
                     <span class="cred">CFA</span>
                     <span class="cred">FRM</span>
                     <span class="cred">CMA</span>
                     <span class="cred">BTRM</span>
                 </div>
-                <blockquote class="font-serif text-xl italic leading-relaxed text-obsidian/80 border-l-2 border-sand pl-5">
+                <blockquote class="pull-quote">
                     Models are tools, not oracles. They can be useful without being precise or accurate all the time.
                 </blockquote>
             </div>
-
-            <!-- Story prose -->
-            <div class="lg:col-span-8 reveal">
-                <h2 class="font-serif text-4xl md:text-5xl leading-tight mb-10">Built on one premise.</h2>
-                <div class="space-y-6 text-base md:text-lg font-light leading-relaxed text-obsidian/85">
+            <div class="reveal">
+                <h2 class="sec-title">Built on one premise.</h2>
+                <div class="prose">
                     <p>
                         Model Sense exists on a single premise: that models are tools, not oracles. They can be useful without being precise or accurate all the time, and knowing the difference between a model that is useful and one that is merely elaborate is the central discipline of responsible ALM practice.
                     </p>
@@ -423,16 +777,15 @@
         </div>
     </section>
 
-    <!-- ════════════════════ THE BOOK ════════════════════ -->
-    <section id="book" class="py-28 md:py-32 bg-obsidian text-cloud-dancer">
-        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+    <!-- ═══════════════ THE BOOK ═══════════════ -->
+    <section id="book" class="band on-dark">
+        <div class="wrap book-grid">
+            <div class="reveal">
+                <p class="sec-label"><span class="n">02</span><span class="t">The Book</span></p>
+                <h2 class="sec-title">Practical ALM<br>Behavioral Modeling</h2>
+                <p class="book-sub">How Deposit Behavior, Interest Rate Risk, and Liquidity Shape Bank Balance Sheets</p>
 
-            <div class="reveal order-2 lg:order-1">
-                <p class="group-label mb-6">Forthcoming · Palgrave Macmillan</p>
-                <h2 class="font-serif text-4xl md:text-5xl leading-tight mb-5">Practical ALM<br>Behavioral Modeling</h2>
-                <h3 class="text-lg md:text-xl italic text-sand mb-8 font-serif leading-snug">How Deposit Behavior, Interest Rate Risk, and Liquidity Shape Bank Balance Sheets</h3>
-
-                <div class="space-y-5 text-base md:text-lg font-light leading-relaxed text-cloud-dancer/85 mb-8">
+                <div class="prose">
                     <p>
                         Under contract with Palgrave Macmillan, with the manuscript due in January 2027. The book teaches the principles of ALM modeling and how behavioral models connect to the measurements they feed: gap, funds transfer pricing, replicating portfolios, EVE, NII, and survival horizon.
                     </p>
@@ -441,24 +794,23 @@
                     </p>
                 </div>
 
-                <div class="flex flex-wrap gap-2 mb-10">
-                    <span class="chip on-dark">From first principles to model governance</span>
-                    <span class="chip on-dark">Running example: AI First Bank</span>
-                    <span class="chip on-dark">For ALM analysts &amp; treasury</span>
-                </div>
+                <dl class="colophon">
+                    <div><dt>Publisher</dt><dd>Palgrave Macmillan, under contract</dd></div>
+                    <div><dt>Manuscript</dt><dd>Due January 2027</dd></div>
+                    <div><dt>Running example</dt><dd>AI First Bank, from first principles to model governance</dd></div>
+                    <div><dt>Written for</dt><dd>ALM analysts, treasury, and risk teams</dd></div>
+                </dl>
 
                 <a href="#contact" class="btn-ghost-inv">Join the waitlist</a>
             </div>
 
             <!-- Book cover art (Palgrave-style mockup; placeholder until the publisher's cover exists) -->
-            <div class="reveal order-1 lg:order-2 flex justify-center lg:justify-end">
-                <div class="book-cover w-64 h-96 md:w-80 md:h-[30rem] flex flex-col">
-                    <div class="cover-band">
-                        <p class="font-serif text-sm md:text-base text-obsidian tracking-[0.08em]">Chih Chen</p>
-                    </div>
-                    <div class="px-7 pt-7 md:pt-9 relative z-10">
-                        <p class="font-serif text-2xl md:text-3xl leading-snug text-cloud-dancer mb-4">Practical ALM Behavioral Modeling</p>
-                        <p class="font-serif text-xs md:text-sm italic leading-relaxed text-cloud-dancer/90">How Deposit Behavior, Interest Rate Risk, and Liquidity Shape Bank Balance Sheets</p>
+            <div class="reveal book-cover-col">
+                <div class="book-cover">
+                    <div class="cover-band"><p>Chih Chen</p></div>
+                    <div class="cover-title">
+                        <p class="t1">Practical ALM Behavioral Modeling</p>
+                        <p class="t2">How Deposit Behavior, Interest Rate Risk, and Liquidity Shape Bank Balance Sheets</p>
                     </div>
                     <svg class="cover-motif" viewBox="0 0 200 110" fill="none" aria-hidden="true">
                         <line x1="28" y1="34" x2="84" y2="18" stroke="#F6F6F4" stroke-width="0.8"/>
@@ -478,209 +830,225 @@
                         <circle cx="140" cy="92" r="4" fill="#F6F6F4"/>
                         <circle cx="76" cy="102" r="4" fill="#F6F6F4"/>
                     </svg>
-                    <div class="cover-imprint">
-                        <p class="font-serif text-xs md:text-sm leading-tight text-cloud-dancer/95">palgrave<br>macmillan</p>
+                    <div class="cover-imprint"><p>palgrave<br>macmillan</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ ALM MODEL LAB ═══════════════ -->
+    <section id="lab" class="band">
+        <div class="wrap">
+            <div class="lab-intro reveal">
+                <p class="sec-label"><span class="n">03</span><span class="t">Interactive</span></p>
+                <h2 class="sec-title">ALM Model Lab</h2>
+                <div class="prose">
+                    <p style="font-size:1.08rem;">
+                        A browser-based modeling lab. It bootstraps the SOFR curve, fits SABR to the cap-vol surface, calibrates Hull-White and BGM/LMM rate models, runs Monte Carlo simulation, and drives calibrated deposit, CD, and mortgage behavioral models through the ALM analytics that connect rates to the balance sheet. No install, no vendor black box; the assumptions are explicit and the mechanics are visible.
+                    </p>
+                </div>
+            </div>
+
+            <div class="lab-cards reveal">
+                <div class="lab-card" style="--accent: var(--teal);">
+                    <span class="idx">01</span>
+                    <div class="glyph">
+                        <svg viewBox="0 0 40 34" fill="none" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="square" stroke-linejoin="miter" d="M2 32 V2 M2 32 H38 M6 28 C 14 27, 24 20, 37 6"/>
+                            <path stroke-linecap="square" stroke-linejoin="miter" opacity="0.45" d="M6 28 C 14 26, 24 24, 37 20"/>
+                        </svg>
+                    </div>
+                    <h3>Rate models</h3>
+                    <p>Bootstrap the SOFR curve. Fit SABR to the cap-vol smile; calibrate Hull-White 1F and BGM/LMM to cap and swaption surfaces. Simulate forward paths with Monte Carlo.</p>
+                </div>
+                <div class="lab-card" style="--accent: var(--green);">
+                    <span class="idx">02</span>
+                    <div class="glyph">
+                        <svg viewBox="0 0 40 34" fill="none" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="square" stroke-linejoin="miter" d="M2 32 V2 M2 32 H38 M4 4 C 14 5, 22 14, 37 29"/>
+                            <path stroke-linecap="square" stroke-linejoin="miter" opacity="0.45" d="M4 4 C 16 6, 26 10, 37 18"/>
+                        </svg>
+                    </div>
+                    <h3>Behavioral models</h3>
+                    <p>A calibrated behavioral suite: competing-risks mortgage prepayment and default, demand-deposit and money-market decay, and CD early redemption. Each model switches between its calibrated form and a classroom form, so the mechanics stay visible.</p>
+                </div>
+                <div class="lab-card" style="--accent: var(--orange);">
+                    <span class="idx">03</span>
+                    <div class="glyph">
+                        <svg viewBox="0 0 40 34" fill="none" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="square" stroke-linejoin="miter" d="M2 17 H38 M8 17 V6 H14 V17 M20 17 V28 H26 V17 M32 17 V10 H38 V17"/>
+                        </svg>
+                    </div>
+                    <h3>ALM analytics</h3>
+                    <p>Repricing gap, liquidity gap, funds transfer pricing, stochastic replicating-portfolio optimization, and the Sensitivity-Equivalent Gap that bridges behavior to risk measures.</p>
+                </div>
+                <div class="lab-card" style="--accent: var(--purple);">
+                    <span class="idx">04</span>
+                    <div class="glyph">
+                        <svg viewBox="0 0 40 34" fill="none" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="square" stroke-linejoin="miter" d="M6 10 H28 V30 H6 Z M10 6 H32 V26 M14 2 H36 V22"/>
+                        </svg>
+                    </div>
+                    <h3>Instruments</h3>
+                    <p>Fixed and floating loans, mortgages, demand and money-market deposit books, a CD book, and the cash-flow engine they share across every analytic.</p>
+                </div>
+            </div>
+
+            <div class="lab-lower reveal">
+                <div class="roadmap on-dark">
+                    <p class="sec-label" style="margin-bottom:22px;"><span class="n">&#8594;</span><span class="t">On the roadmap</span></p>
+                    <div class="roadmap-item first">
+                        <h4>AI First Bank mini-ALM engine</h4>
+                        <p>The book's running balance sheet, modeled end to end inside the Lab.</p>
+                    </div>
+                    <div class="roadmap-item">
+                        <h4>Balance-sheet optimization</h4>
+                        <p>A portfolio optimizer connecting balance sheet composition to repricing gap, NII sensitivity, and EVE targets.</p>
+                    </div>
+                </div>
+                <div class="lab-cta">
+                    <h3>Open the Lab and run a model.</h3>
+                    <p>Calibrate to the bundled quarter-end market snapshot, simulate a rate path, and watch a deposit book decay against it. Built as the book's companion playground.</p>
+                    <div class="lab-cta-row">
+                        <a href="./alm-model-lab/" class="btn-filled">Launch the Lab</a>
+                        <span class="fine">Best on desktop. For educational use only.</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ════════════════════ ALM MODEL LAB ════════════════════ -->
-    <section id="lab" class="py-28 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <div class="mb-16 reveal max-w-3xl">
-            <p class="group-label dim mb-6">Interactive</p>
-            <h2 class="font-serif text-4xl md:text-5xl mb-6">ALM Model Lab</h2>
-            <p class="text-lg font-light leading-relaxed text-obsidian/80">
-                A browser-based modeling lab. It bootstraps the SOFR curve, fits SABR to the cap-vol surface, calibrates Hull-White and BGM/LMM rate models, runs Monte Carlo simulation, and drives the behavioral and ALM analytics that connect rates to the balance sheet. No install, no vendor black box; the assumptions are explicit and the mechanics are visible.
-            </p>
-        </div>
-
-        <!-- Capability cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 reveal mb-20">
-            <div class="lab-card" style="--accent: var(--node-teal);">
-                <div class="lab-card-num mb-6">01</div>
-                <h3 class="font-serif text-2xl mb-3">Rate models</h3>
-                <p class="text-sm font-light leading-relaxed text-obsidian/70">
-                    Bootstrap the SOFR curve. Fit SABR to the cap-vol smile; calibrate Hull-White 1F and BGM/LMM to cap and swaption surfaces. Simulate forward paths with Monte Carlo.
-                </p>
-            </div>
-            <div class="lab-card" style="--accent: var(--node-green);">
-                <div class="lab-card-num mb-6">02</div>
-                <h3 class="font-serif text-2xl mb-3">Behavioral examples</h3>
-                <p class="text-sm font-light leading-relaxed text-obsidian/70">
-                    Mortgage prepayment under an S-curve CPR model. Non-maturity deposit decay with a logistic closure overlay.
-                </p>
-            </div>
-            <div class="lab-card" style="--accent: var(--node-orange);">
-                <div class="lab-card-num mb-6">03</div>
-                <h3 class="font-serif text-2xl mb-3">ALM analytics</h3>
-                <p class="text-sm font-light leading-relaxed text-obsidian/70">
-                    Repricing gap, liquidity gap, funds transfer pricing, stochastic replicating-portfolio optimization, and the Sensitivity-Equivalent Gap that bridges behavior to risk measures.
-                </p>
-            </div>
-            <div class="lab-card" style="--accent: var(--node-purple);">
-                <div class="lab-card-num mb-6">04</div>
-                <h3 class="font-serif text-2xl mb-3">Instruments</h3>
-                <p class="text-sm font-light leading-relaxed text-obsidian/70">
-                    Fixed, floating, and prime loans, mortgages, interest-bearing and non-interest-bearing deposits, and the cash-flow engine they share across every analytic.
-                </p>
-            </div>
-        </div>
-
-        <!-- Roadmap + launch -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 reveal">
-            <!-- Roadmap (dark panel) -->
-            <div class="bg-obsidian text-cloud-dancer p-9 md:p-11">
-                <p class="group-label mb-7">On the roadmap</p>
-                <div class="roadmap-item first">
-                    <h4 class="font-serif text-xl mb-1">AI First Bank mini-ALM engine</h4>
-                    <p class="text-sm font-light leading-relaxed text-cloud-dancer/70">The book's running balance sheet, modeled end to end inside the Lab.</p>
-                </div>
-                <div class="roadmap-item">
-                    <h4 class="font-serif text-xl mb-1">Balance-sheet optimization</h4>
-                    <p class="text-sm font-light leading-relaxed text-cloud-dancer/70">A portfolio optimizer connecting balance sheet composition to repricing gap, NII sensitivity, and EVE targets.</p>
-                </div>
-            </div>
-
-            <!-- Launch CTA -->
-            <div class="flex flex-col justify-center">
-                <h3 class="font-serif text-3xl md:text-4xl leading-tight mb-5">Open the Lab and run a model.</h3>
-                <p class="text-base font-light leading-relaxed text-obsidian/75 mb-8">
-                    Calibrate to the bundled quarter-end market snapshot, simulate a rate path, and watch a deposit book decay against it. Built as the book's companion playground.
-                </p>
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <a href="./alm-model-lab/" class="btn-filled">Launch the Lab</a>
-                    <span class="text-xs font-light text-obsidian/70 leading-relaxed">Best on desktop. For educational use only.</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ════════════════════ MASTERCLASS ════════════════════ -->
-    <section id="masterclass" class="py-28 md:py-32 bg-obsidian text-cloud-dancer">
-        <div class="max-w-7xl mx-auto px-6 md:px-12">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-                <div class="lg:col-span-7 reveal">
-                    <p class="group-label mb-6">Live training</p>
-                    <h2 class="font-serif text-4xl md:text-5xl leading-tight mb-8">Deposit Modeling for Bank ALM</h2>
-                    <p class="text-base md:text-lg font-light leading-relaxed text-cloud-dancer/85 mb-8 max-w-2xl">
+    <!-- ═══════════════ MASTERCLASS ═══════════════ -->
+    <section id="masterclass" class="band on-dark">
+        <div class="wrap mc-grid">
+            <div class="reveal">
+                <p class="sec-label"><span class="n">04</span><span class="t">Live training</span></p>
+                <h2 class="sec-title">Deposit Modeling<br>for Bank ALM</h2>
+                <div class="prose" style="margin-top:26px;">
+                    <p>
                         A focused program on building deposit behavioral models that hold up in practice: non-maturity deposit decay, dynamic rate-sensitive betas, the separation of surge from core, and the link from deposit behavior to net interest income and economic value of equity. Built for treasury and risk professionals who need models they can defend to an examiner and to an ALCO.
                     </p>
-                    <div class="flex flex-wrap gap-2 mb-10">
-                        <span class="chip on-dark">Date forthcoming</span>
-                        <span class="chip on-dark">Virtual</span>
-                        <span class="chip on-dark">Treasury &amp; risk teams</span>
+                </div>
+                <dl class="colophon">
+                    <div><dt>Format</dt><dd>Live virtual training</dd></div>
+                    <div><dt>Date</dt><dd>Forthcoming</dd></div>
+                    <div><dt>Written for</dt><dd>Treasury and risk teams</dd></div>
+                </dl>
+                <a href="#contact" class="btn-ghost-inv">Register your interest</a>
+            </div>
+            <div class="reveal covers-panel">
+                <p class="sec-label" style="margin-bottom:24px;"><span class="n">&#8594;</span><span class="t">What it covers</span></p>
+                <ul class="covers-list">
+                    <li>Non-maturity deposit decay and component-based attrition</li>
+                    <li>Dynamic, rate-sensitive deposit betas (the S-curve)</li>
+                    <li>Surge versus core, and the false-precision trap</li>
+                    <li>From deposit behavior to NII and EVE</li>
+                    <li>Model validation and what an examiner looks for</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ WRITING ═══════════════ -->
+    <section id="writing" class="band">
+        <div class="wrap">
+            <div class="writing-head reveal">
+                <div>
+                    <p class="sec-label"><span class="n">05</span><span class="t">Research &amp; writing</span></p>
+                    <h2 class="sec-title" style="margin-bottom:0;">Published work</h2>
+                </div>
+                <p class="blurb">Selected research on deposit behavior, interest rate risk, and the bridge from repricing gaps to risk measures.</p>
+            </div>
+
+            <div class="reveal">
+                <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6269838" target="_blank" rel="noopener">
+                    <div class="paper-inner">
+                        <span class="num" aria-hidden="true">01</span>
+                        <span>
+                            <span class="venue">SSRN Working Paper · 2026</span>
+                            <h3>Dynamic Deposit Betas: An Asymmetric Volatility-Adjusted S-Curve Framework for MMDA Rate Sensitivity</h3>
+                            <span class="abs">An asymmetric S-curve model for estimating MMDA deposit betas, incorporating volatility adjustment to capture rate-environment-dependent pass-through dynamics.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
                     </div>
-                    <a href="#contact" class="btn-ghost-inv">Register your interest</a>
-                </div>
-                <div class="lg:col-span-5 reveal">
-                    <div class="border border-cloud-dancer/15 p-8 md:p-10">
-                        <p class="group-label mb-7">What it covers</p>
-                        <ul class="covers-list space-y-4 text-sm font-light text-cloud-dancer/80">
-                            <li>Non-maturity deposit decay and component-based attrition</li>
-                            <li>Dynamic, rate-sensitive deposit betas (the S-curve)</li>
-                            <li>Surge versus core, and the false-precision trap</li>
-                            <li>From deposit behavior to NII and EVE</li>
-                            <li>Model validation and what an examiner looks for</li>
-                        </ul>
+                </a>
+                <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5997414" target="_blank" rel="noopener">
+                    <div class="paper-inner">
+                        <span class="num" aria-hidden="true">02</span>
+                        <span>
+                            <span class="venue">SSRN Working Paper · 2025</span>
+                            <h3>Beyond Static Bifurcation: A Regime-Aware Approach to Nonmaturity Deposit Modeling</h3>
+                            <span class="abs">A regime-conditional framework for nonmaturity deposit modeling that moves beyond fixed core/transactional splits toward rate-environment-aware segmentation.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
                     </div>
-                </div>
+                </a>
+                <a class="paper" href="https://hstalks.com/article/9110/dynamic-deposit-behaviours-in-irrbb-enhancing-risk/?business" target="_blank" rel="noopener">
+                    <div class="paper-inner">
+                        <span class="num" aria-hidden="true">03</span>
+                        <span>
+                            <span class="venue">Journal of Risk Management in Financial Institutions · 2025</span>
+                            <h3>Dynamic Deposit Behaviours in IRRBB: Enhancing Risk Management through Sensitivity Analysis</h3>
+                            <span class="abs">Examines how deposit behavioral assumptions propagate into IRRBB sensitivity metrics and quantifies the effect on EVE and NII risk measures.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
+                    </div>
+                </a>
+                <a class="paper" href="https://btrm.org/wp-content/uploads/2025/05/BTRM-WP23-NMD-Component_Chih-Chen.pdf" target="_blank" rel="noopener">
+                    <div class="paper-inner">
+                        <span class="num" aria-hidden="true">04</span>
+                        <span>
+                            <span class="venue">BTRM Working Paper Series #23 · 2025</span>
+                            <h3>A Component-Based Model for Non-Maturity Deposit Decay Incorporating Interest Rate and Credit Spread Sensitivity</h3>
+                            <span class="abs">Decomposes NMD decay into interest rate and credit spread components, enabling more granular behavioral modeling of deposit runoff under stress.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
+                    </div>
+                </a>
+                <a class="paper" href="https://btrm.org/wp-content/uploads/2024/09/BTRM-%E2%80%93-WP20-Deposit-Modeling.pdf" target="_blank" rel="noopener">
+                    <div class="paper-inner" style="border-bottom:none;">
+                        <span class="num" aria-hidden="true">05</span>
+                        <span>
+                            <span class="venue">BTRM Working Paper Series #20 · 2024</span>
+                            <h3>The Impact of Deposit Modeling on Interest Rate Risk in the Banking Book (IRRBB) Sensitivity Metrics: A Worked Illustration</h3>
+                            <span class="abs">A worked illustration of how deposit modeling choices flow through to EVE and NII sensitivity outputs under standard IRRBB shock scenarios.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
+                    </div>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- ════════════════════ WRITING / PAPERS ════════════════════ -->
-    <section id="writing" class="py-28 md:py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between md:items-end mb-14 reveal gap-6">
-            <div>
-                <p class="group-label dim mb-6">Research &amp; writing</p>
-                <h2 class="font-serif text-4xl md:text-5xl">Published work</h2>
-            </div>
-            <p class="max-w-md text-base font-light leading-relaxed text-obsidian/70">
-                Selected research on deposit behavior, interest rate risk, and the bridge from repricing gaps to risk measures.
-            </p>
-        </div>
-
-        <div class="space-y-8 reveal">
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6269838" target="_blank" rel="noopener" class="research-row group flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="md:w-3/4">
-                    <p class="group-label dim mb-2">SSRN Working Paper · 2026</p>
-                    <h3 class="research-title font-serif text-2xl mb-2">Dynamic Deposit Betas: An Asymmetric Volatility-Adjusted S-Curve Framework for MMDA Rate Sensitivity</h3>
-                    <p class="text-sm font-light leading-relaxed text-obsidian/70 max-w-3xl">An asymmetric S-curve model for estimating MMDA deposit betas, incorporating volatility adjustment to capture rate-environment-dependent pass-through dynamics.</p>
-                </div>
-                <span class="btn-arrow"><span>Read</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
-            </a>
-
-            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5997414" target="_blank" rel="noopener" class="research-row group flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="md:w-3/4">
-                    <p class="group-label dim mb-2">SSRN Working Paper · 2025</p>
-                    <h3 class="research-title font-serif text-2xl mb-2">Beyond Static Bifurcation: A Regime-Aware Approach to Nonmaturity Deposit Modeling</h3>
-                    <p class="text-sm font-light leading-relaxed text-obsidian/70 max-w-3xl">A regime-conditional framework for nonmaturity deposit modeling that moves beyond fixed core/transactional splits toward rate-environment-aware segmentation.</p>
-                </div>
-                <span class="btn-arrow"><span>Read</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
-            </a>
-
-            <a href="https://hstalks.com/article/9110/dynamic-deposit-behaviours-in-irrbb-enhancing-risk/?business" target="_blank" rel="noopener" class="research-row group flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="md:w-3/4">
-                    <p class="group-label dim mb-2">Journal of Risk Management in Financial Institutions · 2025</p>
-                    <h3 class="research-title font-serif text-2xl mb-2">Dynamic Deposit Behaviours in IRRBB: Enhancing Risk Management through Sensitivity Analysis</h3>
-                    <p class="text-sm font-light leading-relaxed text-obsidian/70 max-w-3xl">Examines how deposit behavioral assumptions propagate into IRRBB sensitivity metrics and quantifies the effect on EVE and NII risk measures.</p>
-                </div>
-                <span class="btn-arrow"><span>Read</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
-            </a>
-
-            <a href="https://btrm.org/wp-content/uploads/2025/05/BTRM-WP23-NMD-Component_Chih-Chen.pdf" target="_blank" rel="noopener" class="research-row group flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="md:w-3/4">
-                    <p class="group-label dim mb-2">BTRM Working Paper Series #23 · 2025</p>
-                    <h3 class="research-title font-serif text-2xl mb-2">A Component-Based Model for Non-Maturity Deposit Decay Incorporating Interest Rate and Credit Spread Sensitivity</h3>
-                    <p class="text-sm font-light leading-relaxed text-obsidian/70 max-w-3xl">Decomposes NMD decay into interest rate and credit spread components, enabling more granular behavioral modeling of deposit runoff under stress.</p>
-                </div>
-                <span class="btn-arrow"><span>Read</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
-            </a>
-
-            <a href="https://btrm.org/wp-content/uploads/2024/09/BTRM-%E2%80%93-WP20-Deposit-Modeling.pdf" target="_blank" rel="noopener" class="research-row group flex flex-col md:flex-row md:items-center justify-between gap-4" style="border-bottom:none;">
-                <div class="md:w-3/4">
-                    <p class="group-label dim mb-2">BTRM Working Paper Series #20 · 2024</p>
-                    <h3 class="research-title font-serif text-2xl mb-2">The Impact of Deposit Modeling on Interest Rate Risk in the Banking Book (IRRBB) Sensitivity Metrics: A Worked Illustration</h3>
-                    <p class="text-sm font-light leading-relaxed text-obsidian/70 max-w-3xl">A worked illustration of how deposit modeling choices flow through to EVE and NII sensitivity outputs under standard IRRBB shock scenarios.</p>
-                </div>
-                <span class="btn-arrow"><span>Read</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
-            </a>
+    <!-- ═══════════════ CONTACT ═══════════════ -->
+    <section id="contact" class="contact band-rule">
+        <div class="wrap reveal">
+            <p class="sec-label" style="justify-content:center;"><span class="n">06</span><span class="t">Get in touch</span></p>
+            <h2>Let's talk models.</h2>
+            <p>For the book waitlist, masterclass registration, or a question about the ALM Model Lab, send a note.</p>
+            <a href="mailto:contact@modelsensealm.com" class="btn-filled">Email Model Sense</a>
         </div>
     </section>
 
-    <!-- ════════════════════ CONTACT ════════════════════ -->
-    <section id="contact" class="py-32 md:py-40 px-6 md:px-12 max-w-4xl mx-auto text-center reveal border-t border-obsidian/10">
-        <p class="group-label dim mb-6">Get in touch</p>
-        <h2 class="font-serif text-4xl md:text-6xl mb-8 leading-tight">Let's talk models.</h2>
-        <p class="text-lg font-light mb-12 max-w-2xl mx-auto text-obsidian/80 leading-relaxed">
-            For the book waitlist, masterclass registration, or a question about the ALM Model Lab, send a note.
-        </p>
-        <a href="mailto:contact@modelsensealm.com" class="btn-filled">Email Model Sense</a>
-    </section>
-
-    <!-- ════════════════════ FOOTER ════════════════════ -->
-    <footer class="border-t border-obsidian/10 py-12 px-6 md:px-12">
-        <div class="max-w-7xl mx-auto mb-8 pb-8 border-b border-obsidian/10">
-            <p class="text-xs leading-relaxed text-obsidian/65">The views and content on this site reflect the views of Chih Chen in his personal capacity and do not represent the views, positions, or endorsements of his employer or any other organization. The ALM Model Lab and all content on this site are for educational and illustrative purposes only. Nothing here constitutes financial advice, investment advice, or regulatory guidance; outputs from the Model Lab are not intended for use in actual risk management decisions.</p>
-        </div>
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm font-light">
-            <div class="font-serif text-xl font-semibold">
-                Model Sense<span class="text-sand">.</span>
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer>
+        <div class="wrap">
+            <p class="foot-legal">The views and content on this site reflect the views of Chih Chen in his personal capacity and do not represent the views, positions, or endorsements of his employer or any other organization. The ALM Model Lab and all content on this site are for educational and illustrative purposes only. Nothing here constitutes financial advice, investment advice, or regulatory guidance; outputs from the Model Lab are not intended for use in actual risk management decisions.</p>
+            <div class="foot-row">
+                <span class="foot-mark">Model Sense<span>.</span></span>
+                <div class="foot-links">
+                    <a href="#about">About</a>
+                    <a href="#book">The Book</a>
+                    <a href="#lab">ALM Model Lab</a>
+                    <a href="#masterclass">Masterclass</a>
+                    <a href="#writing">Writing</a>
+                </div>
+                <span class="foot-copy">&copy; 2026 Model Sense · modelsensealm.com</span>
             </div>
-            <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
-                <a href="#about" class="hover:text-node-teal transition-colors">About</a>
-                <a href="#book" class="hover:text-node-teal transition-colors">The Book</a>
-                <a href="#lab" class="hover:text-node-teal transition-colors">ALM Model Lab</a>
-                <a href="#masterclass" class="hover:text-node-teal transition-colors">Masterclass</a>
-                <a href="#writing" class="hover:text-node-teal transition-colors">Writing</a>
-            </div>
-            <div class="text-obsidian/70">&copy; 2026 Model Sense · modelsensealm.com</div>
         </div>
     </footer>
 
-    <!-- ════════════════════ SCRIPT ════════════════════ -->
+    <!-- ═══════════════ SCRIPT ═══════════════ -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Scroll reveal
@@ -691,32 +1059,48 @@
                         obs.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
             document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
 
-            // Nav shadow + compact logo on scroll
+            // Nav shadow + compact on scroll; reading-progress hairline
             var nav = document.getElementById('nav');
-            window.addEventListener('scroll', function () {
-                if (window.scrollY > 40) { nav.classList.add('shadow-sm'); }
-                else { nav.classList.remove('shadow-sm'); }
-            });
-
-            // Mobile menu
-            var btn = document.getElementById('menu-btn');
-            var menu = document.getElementById('mobile-menu');
-            function closeMenu() {
-                menu.classList.remove('open');
-                btn.setAttribute('aria-expanded', 'false');
+            var progress = document.getElementById('progress');
+            function onScroll() {
+                if (window.scrollY > 40) { nav.classList.add('scrolled'); }
+                else { nav.classList.remove('scrolled'); }
+                var max = document.documentElement.scrollHeight - window.innerHeight;
+                progress.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
             }
-            btn.addEventListener('click', function () {
-                var open = menu.classList.toggle('open');
-                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-            menu.querySelectorAll('a').forEach(function (a) {
-                a.addEventListener('click', closeMenu);
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+
+            // Mobile overlay menu
+            var btn = document.getElementById('menu-btn');
+            var overlay = document.getElementById('overlay');
+            var closeBtn = document.getElementById('overlay-close');
+            function openMenu() {
+                overlay.classList.add('open');
+                btn.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+                closeBtn.focus();
+            }
+            function closeMenu() {
+                overlay.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+                btn.focus();
+            }
+            btn.addEventListener('click', openMenu);
+            closeBtn.addEventListener('click', closeMenu);
+            overlay.querySelectorAll('a').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    overlay.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                });
             });
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && menu.classList.contains('open')) { closeMenu(); btn.focus(); }
+                if (e.key === 'Escape' && overlay.classList.contains('open')) { closeMenu(); }
             });
         });
     </script>
