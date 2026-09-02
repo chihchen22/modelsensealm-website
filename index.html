@@ -17,14 +17,16 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://modelsensealm.com/assets/og-card.png">
-    <script>document.documentElement.classList.add('js');</script>
+    <script>document.documentElement.classList.add('js','ms-js');</script>
 
     <!-- Fonts: Playfair Display (display serif) + Sora (body sans) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
 
-    <!-- All styles are hand-written and inlined below; no framework, no external stylesheet. -->
+    <!-- Shared motion tokens, identical to the copy the ALM Model Lab loads. -->
+    <link rel="stylesheet" href="assets/motion.css">
+    <!-- Page styles are hand-written and inlined below. -->
     <style>
         /* ── Tokens ──────────────────────────────────────────────── */
         :root {
@@ -37,10 +39,13 @@
             --purple:       #7050A0;
 
             /* Derived inks (shades and alphas of the core palette only) */
+            --paper:        #FCFCFB;
             --ink-85:       rgba(18,19,18,0.85);
             --ink-70:       rgba(18,19,18,0.70);
-            --hairline:     rgba(18,19,18,0.12);
-            --hairline-lt:  rgba(18,19,18,0.07);
+            --ink-55:       rgba(18,19,18,0.62);   /* 5.07:1 on the paper ground, AA for small text */
+            --hairline:     rgba(18,19,18,0.09);
+            --hairline-lt:  rgba(18,19,18,0.09);
+            --hairline-str: rgba(18,19,18,0.18);
             --sand-ink:     #6E675C;              /* shade of sand, AA on light ground */
             --teal-deep:    #226361;              /* shade of teal for hover text */
             --cloud-85:     rgba(246,246,244,0.85);
@@ -55,27 +60,33 @@
 
             --pad-x: clamp(24px, 5vw, 64px);
             --measure: 42rem;
+            --nav-h: 96px;
+            /* The one left edge. Resolved against the containing block, not the
+               viewport, so a visible scrollbar cannot pull a bleed-positioned
+               label off the 1200px container the text sits on. */
+            --edge: calc(max(0px, (100% - 1200px) / 2) + var(--pad-x));
         }
 
         /* ── Reset & ground ──────────────────────────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-padding-top: 92px; }
+        html { scroll-padding-top: 96px; }
         html, body { overflow-x: clip; }
         body {
             font-family: var(--sans);
             font-weight: 300;
-            font-size: 16px;
-            line-height: 1.75;
+            font-size: 17px;
+            line-height: 1.72;
             background: var(--cloud);
             color: var(--obsidian);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
         img, svg { display: block; max-width: 100%; }
+        .brand-lattice, .ms-defs { max-width: none; }
         a { color: inherit; }
         ::selection { background: var(--obsidian); color: var(--cloud); }
 
-        h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; line-height: 1.12; text-wrap: balance; }
+        h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; line-height: 1.12; text-wrap: balance; }
         p { text-wrap: pretty; }
 
         a:focus-visible, button:focus-visible {
@@ -98,12 +109,12 @@
         /* ── Section ledger label ────────────────────────────────── */
         .sec-label {
             display: flex; align-items: center; gap: 14px;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: 0.24em; text-transform: uppercase;
-            color: var(--sand-ink);
+            font-size: 12px; font-weight: 600; line-height: 1.2;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--ink-55);
             margin-bottom: 28px;
         }
-        .sec-label .n { order: 0; font-weight: 600; letter-spacing: 0.08em; }
+        .sec-label .n { order: 0; font-weight: 600; letter-spacing: 0.2em; }
         .sec-label::before { content: ''; order: 1; width: 34px; height: 1px; background: var(--sand); }
         .sec-label .t { order: 2; }
         .on-dark .sec-label { color: var(--sand); }
@@ -127,13 +138,14 @@
 
         .btn-arrow {
             display: inline-flex; align-items: center; gap: 12px;
-            font-size: 12px; font-weight: 600; letter-spacing: 0.11em;
+            font-size: 12px; font-weight: 600; line-height: 1.2; letter-spacing: 0.1em;
             text-transform: uppercase; text-decoration: none; cursor: pointer;
         }
         .btn-arrow svg { transition: transform 0.3s var(--ease-out); }
         .btn-arrow:hover svg, .btn-arrow:focus-visible svg { transform: translateX(6px); }
-        .btn-arrow.quiet { color: var(--ink-70); transition: color 0.3s; }
-        .btn-arrow.quiet:hover { color: var(--obsidian); }
+        /* Secondary by rank and position, not by failing contrast: 0.62 holds 5.07:1. */
+        .btn-arrow.quiet { opacity: 0.62; transition: opacity 0.3s var(--ease-out); }
+        .btn-arrow.quiet:hover, .btn-arrow.quiet:focus-visible { opacity: 1; }
 
         /* ── Nav ─────────────────────────────────────────────────── */
         #progress {
@@ -143,25 +155,24 @@
         }
         nav#nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 60;
-            background: rgba(246,246,244,0.88);
+            background: rgba(246,246,244,0.82);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--hairline-lt);
+            overflow: hidden;
             transition: box-shadow 0.35s ease;
         }
         nav#nav.scrolled { box-shadow: 0 1px 24px rgba(18,19,18,0.06); }
         .nav-inner {
+            position: relative; z-index: 1;
             max-width: 1200px; margin: 0 auto;
-            padding: 20px var(--pad-x);
+            padding: 0 var(--pad-x); height: calc(var(--nav-h) - 1px);
             display: flex; align-items: center; justify-content: space-between; gap: 24px;
-            transition: padding 0.4s var(--ease-out);
         }
-        nav#nav.scrolled .nav-inner { padding-top: 12px; padding-bottom: 12px; }
 
         .lockup { display: inline-flex; align-items: center; text-decoration: none; }
-        .lockup img { height: 62px; width: auto; transition: height 0.4s var(--ease-out); }
-        nav#nav.scrolled .lockup img { height: 50px; }
-        @media (max-width: 560px) { .lockup img { height: 52px; } nav#nav.scrolled .lockup img { height: 46px; } }
+        .lockup img { height: 56px; width: auto; }
+        @media (max-width: 560px) { .lockup img { height: 46px; } }
 
         .nav-links { display: none; align-items: center; gap: 30px; }
         .nav-links a {
@@ -177,13 +188,18 @@
             transform: scaleX(0); transform-origin: left;
             transition: transform 0.35s var(--ease-out);
         }
-        .nav-links a:hover { color: var(--teal-deep); }
+        .nav-links a:hover, .nav-links a:focus-visible { color: var(--teal-deep); }
         .nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); }
 
+        /* Ghost spec, and deliberately quieter than the hero's primary link. */
         .nav-cta { display: none; }
         @media (min-width: 1024px) {
             .nav-links { display: flex; }
-            .nav-cta { display: inline-flex; font-size: 12px; padding: 10px 22px; }
+            .nav-cta {
+                display: inline-flex; font-size: 13px; font-weight: 400;
+                letter-spacing: 0.05em; padding: 12px 24px; opacity: 0.62;
+            }
+            .nav-cta:hover, .nav-cta:focus-visible { opacity: 1; }
             nav#nav #menu-btn { display: none; }
         }
 
@@ -234,11 +250,11 @@
         }
         .overlay-links a:first-child { border-top: 1px solid var(--cloud-hair); }
         .overlay-links .num {
-            font-size: 11px; font-weight: 600; letter-spacing: 0.18em; color: var(--sand);
-            min-width: 26px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em; color: var(--sand);
+            min-width: 28px;
         }
         .overlay-links .name {
-            font-family: var(--serif); font-size: clamp(26px, 7vw, 34px); font-weight: 500; color: var(--cloud);
+            font-family: var(--serif); font-size: clamp(26px, 7vw, 34px); font-weight: 400; color: var(--cloud);
         }
         .js #overlay.open .overlay-links a { animation: ovIn 0.5s var(--ease-out) both; }
         .js #overlay.open .overlay-links a:nth-child(1) { animation-delay: 0.05s; }
@@ -250,83 +266,225 @@
         @keyframes ovIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         .overlay-foot { display: flex; flex-direction: column; gap: 14px; }
         .overlay-foot .btn-ghost-inv { align-self: flex-start; }
-        .overlay-foot p { font-size: 12px; color: var(--cloud-70); }
+        .overlay-foot p { font-size: 13px; color: var(--cloud-70); }
+
+        /* ── The one brand geometry ──────────────────────────────── */
+        /* One seeded node network in page coordinates behind the first screen
+           and repeated inside the nav band, so it crosses the nav hairline
+           instead of stopping at it, and runs left of the headline. */
+        .ms-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+        .brand-lattice {
+            position: absolute; top: -96px; left: calc(50% - 780px);
+            width: 1560px; height: 1080px; pointer-events: none;
+        }
+        .latt-page, .latt-nav, .latt-foot {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden; pointer-events: none;
+        }
+        .latt-foot .brand-lattice { top: -620px; }
 
         /* ── Hero ────────────────────────────────────────────────── */
-        .hero {
+        .hero { position: relative; overflow: clip; }
+        .hero-frame {
             position: relative;
             min-height: 100svh;
-            display: flex; flex-direction: column; justify-content: center;
-            padding-top: 150px; padding-bottom: 48px;
-            overflow: clip;
+            display: flex; align-items: center;
+            padding-top: var(--nav-h);
         }
-        /* Chart-paper quadrille, fading toward the lower left */
-        .hero::before {
-            content: ''; position: absolute; inset: 0; z-index: 0;
-            background-image:
-                linear-gradient(var(--hairline-lt) 1px, transparent 1px),
-                linear-gradient(90deg, var(--hairline-lt) 1px, transparent 1px);
-            background-size: 56px 56px;
-            -webkit-mask-image: radial-gradient(120% 100% at 78% 18%, #000 30%, transparent 78%);
-            mask-image: radial-gradient(120% 100% at 78% 18%, #000 30%, transparent 78%);
-            pointer-events: none;
-        }
-        .hero-grid {
-            position: relative; z-index: 1;
-            display: grid; grid-template-columns: 1fr; gap: 40px;
-            align-items: center;
-        }
-        @media (min-width: 1024px) {
-            .hero-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; }
-        }
+        .hero-frame > .wrap { position: relative; z-index: 2; width: 100%; }
+        .hero .copy { max-width: 545px; }
 
         .hero h1 {
-            font-size: clamp(2.6rem, 6vw, 5.3rem);
-            letter-spacing: -0.015em;
+            font-size: 72px;
+            letter-spacing: -0.018em;
             line-height: 1.06;
-            margin: 22px 0 30px;
+            margin: 0 0 30px;
         }
-        @media (max-width: 560px) {
-            .hero .sec-label .n { display: none; }
-        }
+        @media (max-width: 1180px) { .hero h1 { font-size: 56px; } }
+        @media (max-width: 560px)  { .hero h1 { font-size: 44px; } .hero .sec-label .n { display: none; } }
         .hero h1 em { font-style: italic; color: var(--ink-85); }
         .hero .lede {
             max-width: var(--measure);
-            font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+            font-size: 17px; line-height: 1.72;
             color: var(--ink-85);
             margin-bottom: 40px;
         }
         .hero-ctas { display: flex; flex-wrap: wrap; gap: 22px 40px; align-items: center; }
 
-        /* Load-in cascade */
-        .js .rise { opacity: 0; transform: translateY(26px); animation: rise 0.9s var(--ease-reveal) forwards; }
-        .js .rise.d1 { animation-delay: 0.10s; }
-        .js .rise.d2 { animation-delay: 0.25s; }
-        .js .rise.d3 { animation-delay: 0.40s; }
-        .js .rise.d4 { animation-delay: 0.55s; }
+        /* Load-in cascade, on the one easing curve */
+        .js .rise { opacity: 0; transform: translateY(24px); animation: rise 0.9s var(--ease-out) forwards; }
+        .js .rise.d1 { animation-delay: 0.05s; }
+        .js .rise.d2 { animation-delay: 0.18s; }
+        .js .rise.d3 { animation-delay: 0.31s; }
+        .js .rise.d4 { animation-delay: 0.44s; }
         @keyframes rise { to { opacity: 1; transform: none; } }
+        body.settled .rise { opacity: 1; transform: none; animation: none; }
 
-        /* Rate-path fan (decorative, code-drawn) */
-        .fan { width: 100%; height: auto; }
-        .fan .base { stroke: var(--obsidian); opacity: 0.22; stroke-width: 1.2; fill: none; }
-        .fan .flat { stroke: var(--obsidian); opacity: 0.32; stroke-width: 1; fill: none; stroke-dasharray: 2 6; }
-        .fan .acc  { stroke-width: 2.2; fill: none; }
-        .fan .dot  { opacity: 0; }
-        .js .fan .draw {
-            stroke-dasharray: 1; stroke-dashoffset: 1;
-            animation: fandraw 1.7s var(--ease-reveal) forwards;
+        /* ── The plate: one made object, cut on the lattice, bleeding ── */
+        /* The plate is anchored to the 1200px container, not to the viewport:
+           its right edge sits 200px past the container's right text edge, so a
+           wide window leaves paper on the right as it does on the left. Its
+           left inset is measured off the same edge, which keeps the faceted cut
+           clear of the 545px copy column at every width the frame is used. */
+        .art {
+            position: absolute; z-index: 1;
+            top: var(--nav-h); bottom: 0;
+            left: calc(var(--edge) + 430px); right: calc(var(--edge) - 200px);
+            display: flex; align-items: center; justify-content: flex-end;
+            pointer-events: none;
+            /* Multiply belongs on .art: with the blend on an inner element the
+               backdrop would be .art's own empty stacking context and the plate
+               would composite over the lattice as an opaque rectangle. The
+               asset's paper is remapped to white in prep, so white times the
+               page tone is the page tone and no rectangle survives. */
+            mix-blend-mode: multiply;
         }
-        .js .fan .acc.draw { animation-duration: 2.1s; }
-        .js .fan .dot { animation: dotin 0.6s ease-out forwards; animation-delay: 2.0s; }
-        @keyframes fandraw { to { stroke-dashoffset: 0; } }
-        @keyframes dotin { to { opacity: 1; } }
-        .fan-wrap { position: relative; display: none; }
-        @media (min-width: 1024px) { .fan-wrap { display: block; } }
-        .fan-origin {
-            position: absolute; left: 0; top: 58%;
-            font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--sand-ink);
+        /* Two caps on the object itself: it never renders wider than 1000px, and
+           the 1440x778 asset never stands taller than 70vh (1000/778*70 = 129.5). */
+        .plate-stack {
+            position: relative; width: 100%;
+            max-width: min(1000px, 129.5vh);
+            margin-left: auto;
         }
+        /* No cut. The plate's paper is remapped to white in prep and the frame
+           multiplies, so its left edge can simply be faded out: the drawing
+           thins into the page ground with no polygon and no seam, and the fade
+           also holds the ink clear of the copy column. */
+        .plate-cut {
+            position: relative; width: 100%;
+            -webkit-mask-image: linear-gradient(90deg, rgba(18,19,18,0) 0, rgba(18,19,18,0) 8%, rgba(18,19,18,1) 27%);
+                    mask-image: linear-gradient(90deg, rgba(18,19,18,0) 0, rgba(18,19,18,0) 8%, rgba(18,19,18,1) 27%);
+        }
+        .plate-cut img { display: block; width: 100%; height: auto; }
+        /* Under 900 the frame stops being a screen and becomes a stack: copy,
+           then the plate directly beneath it, still running off the right edge. */
+        @media (max-width: 899px) {
+            .hero-frame {
+                min-height: 0;
+                display: flex; flex-direction: column; align-items: stretch;
+                padding-top: calc(var(--nav-h) + 40px);
+                padding-bottom: 0;
+            }
+            .hero-frame > .wrap { order: 1; }
+            .art {
+                order: 2; position: static;
+                margin: 40px calc(-2vw) 0 var(--pad-x);
+                display: block;
+            }
+            .contents { margin-top: clamp(56px, 9vh, 96px); }
+        }
+        .contours { position: absolute; left: -4%; top: 27%; width: 100%; height: auto; will-change: transform; }
+
+        /* The reveal: a soft directional mask travelling left to right, 900ms */
+        .plate-wipe {
+            -webkit-mask-image: linear-gradient(96deg, rgba(18,19,18,1) 0 34%, rgba(18,19,18,0.55) 44%, rgba(18,19,18,0) 56%);
+                    mask-image: linear-gradient(96deg, rgba(18,19,18,1) 0 34%, rgba(18,19,18,0.55) 44%, rgba(18,19,18,0) 56%);
+            -webkit-mask-size: 270% 100%; mask-size: 270% 100%;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            -webkit-mask-position: 126% 0; mask-position: 126% 0;
+        }
+        .hero .plate-wipe { animation: wipe 0.9s var(--ease-out) 0.25s forwards; }
+        .ms-js .band-plate .plate-wipe.is-in,
+        .ms-js .surface-card .plate-wipe.is-in { animation: wipe 0.9s var(--ease-out) forwards; }
+        @keyframes wipe { to { -webkit-mask-position: -4% 0; mask-position: -4% 0; } }
+        body.settled .hero .plate-wipe { animation: none; -webkit-mask-image: none; mask-image: none; }
+
+        /* ── Figure labels ───────────────────────────────────────── */
+        .fig-label {
+            font-size: 12px; font-weight: 600; line-height: 1.8;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--ink-55); margin: 0; pointer-events: none;
+        }
+        .fig-label b { font-weight: 600; color: var(--obsidian); }
+        .fig-label::before {
+            content: ''; position: absolute; left: -18px; top: 9px;
+            width: 7px; height: 7px; border-radius: 50%; background: var(--teal);
+        }
+        .hero .fig-label { position: absolute; z-index: 3; left: var(--edge); bottom: 74px; }
+        @media (max-width: 1023px) { .hero .fig-label { display: none; } }
+        .on-dark .fig-label { color: var(--cloud-70); }
+        .on-dark .fig-label b { color: var(--cloud); }
+
+        /* ── Band plate: the same object language on a dark band ─── */
+        /* The plates are paper-ground and are never inverted. On an ink band
+           the whole sheet is tipped in at its natural 16:9, right-aligned to the
+           1200px container with a short bleed, trimmed crisp on all four
+           edges. */
+        /* The mesh runs past the sheet and across the band, so the band's own
+           text has to sit above it. */
+        section.band > .wrap { position: relative; z-index: 1; }
+        /* No z-index here: a stacking context on the plate would isolate the
+           sheet's screen blend from the band behind it, and the plate would
+           come back as a black rectangle. The mesh and the sheet carry their
+           own z-index and still sit under the band's text. */
+        .band-plate {
+            position: relative; margin-top: clamp(56px, 7vh, 88px);
+            /* The group screens onto the band; the sheet inside screens onto
+               the mesh. Two steps, because a positioned element groups its
+               descendants and a blend applied deeper never reaches the band. */
+            mix-blend-mode: screen;
+        }
+        /* The mesh strip: from the one left edge, off the right of the page.
+           It is drawn behind the sheet and now runs on through it, because the
+           sheet no longer has a ground to occlude anything with. */
+        .band-plate .bleed {
+            position: absolute; z-index: 0;
+            top: 0; bottom: 0;
+            left: var(--edge);
+            right: calc(-1 * var(--pad-x) - 60px);
+        }
+        /* The sheet: the asset at its own aspect, screened onto the mesh. */
+        .band-plate .sheet {
+            position: relative; z-index: 1;
+            mix-blend-mode: screen;
+            width: min(1000px, calc(100% - var(--edge) - max(0px, var(--edge) - 120px)));
+            margin-left: auto;
+            margin-right: max(0px, calc(var(--edge) - 120px));
+        }
+        /* On the ink band the plate is turned through: invert takes the paper
+           to near-black and the ink to light, the 180deg hue rotation brings
+           the green and violet accents back to roughly their own hue, and
+           screen drops the now-black paper into the band so only the mesh,
+           the floor contours and the accent survive. No border, no ground:
+           the edges dissolve on their own. */
+        .band-plate .sheet img {
+            display: block; width: 100%; height: auto;
+            filter: invert(1) hue-rotate(180deg) brightness(0.98) contrast(1.14);
+        }
+        .band-plate .bleed svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .band-plate .fig-label { position: absolute; left: var(--edge); top: -46px; z-index: 2; }
+        @media (max-width: 700px) { .band-plate { display: none; } }
+
+        /* ── Lab: the live rendered surface ──────────────────────── */
+        .lab-top { display: grid; grid-template-columns: 1fr; gap: 44px; align-items: center; margin-bottom: 56px; }
+        @media (min-width: 1100px) { .lab-top { grid-template-columns: minmax(0, 1fr) 500px; gap: 64px; } }
+        .lab-object { position: relative; }
+        /* The object bleeds right into the page gutter as the viewport opens
+           up, which is what buys the mesh its cell size at the wide end. Each
+           step is sized against the gutter the narrowest viewport in its own
+           range actually has, so the surface never runs past the page edge:
+           overflow-x is clipped, not scrolled, and a clip would read as the
+           object being cut. */
+        @media (min-width: 1100px) { .lab-object { width: 500px; } }
+        @media (min-width: 1360px) { .lab-object { width: 620px; } }
+        @media (min-width: 1680px) { .lab-object { width: 720px; } }
+        /* No card. The object stands on the band's own ground the way the hero
+           plate does, and the renderer fits the whole of it, floor footprint
+           and contours included, inside its own eight percent margin. */
+        .surface-card { position: relative; }
+        .surface-card .plate-wipe { display: block; }
+        /* No border and no ground of its own: the sheet is trimmed to the page
+           paper, so only the ink reads. The drift rides the image, not the
+           wipe, so the mask stays put while the object moves under it. */
+        .surface-card img {
+            display: block; width: 100%; height: auto;
+            transform-origin: 50% 50%; will-change: transform;
+        }
+        .surface-card .fig-label {
+            margin-top: 2px; padding-left: 18px; position: relative;
+            display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 16px;
+        }
+        .surface-card .fig-label::before { left: 0; }
 
         /* Contents index */
         .contents { margin-top: clamp(48px, 7vh, 88px); position: relative; z-index: 1; }
@@ -336,8 +494,8 @@
             padding-bottom: 10px;
         }
         .contents-head .t {
-            font-size: 11px; font-weight: 600; letter-spacing: 0.24em;
-            text-transform: uppercase; color: var(--sand-ink);
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--ink-55);
         }
         .contents-rows { display: grid; grid-template-columns: 1fr; }
         @media (min-width: 820px) { .contents-rows { grid-template-columns: repeat(3, 1fr); } }
@@ -355,51 +513,49 @@
         }
         .contents .kicker {
             display: inline-flex; align-items: center; gap: 9px;
-            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--sand-ink);
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--ink-55);
         }
         .contents .kicker::before {
             content: ''; width: 7px; height: 7px; border-radius: 50%;
             background: var(--dot, var(--sand));
         }
-        .contents .name { font-family: var(--serif); font-size: 24px; font-weight: 500; line-height: 1.2; }
+        .contents .name { font-family: var(--serif); font-size: 24px; font-weight: 400; line-height: 1.2; }
         .contents .name .go {
             display: inline-block; margin-left: 10px;
             transition: transform 0.3s var(--ease-out), color 0.3s;
-            color: var(--sand-ink); font-family: var(--sans); font-size: 15px;
+            color: var(--ink-55); font-family: var(--sans); font-size: 13px;
         }
         .contents a:hover .go, .contents a:focus-visible .go { transform: translateX(5px); color: var(--teal); }
-        .contents .desc { font-size: 13.5px; color: var(--ink-70); line-height: 1.6; max-width: 30ch; }
+        .contents .desc { font-size: 13px; color: var(--ink-70); line-height: 1.6; max-width: 30ch; }
 
         /* ── Generic section rhythm ──────────────────────────────── */
-        section.band { padding: clamp(88px, 12vh, 132px) 0; }
+        section.band { position: relative; padding: clamp(88px, 12vh, 132px) 0; }
         section.band.on-dark { background: var(--obsidian); color: var(--cloud); }
         .band-rule { border-top: 1px solid var(--hairline); }
 
         h2.sec-title { font-size: clamp(2.1rem, 4.2vw, 3.3rem); margin-bottom: 28px; }
 
-        /* Scroll reveal (gated on .js so content shows if JS fails) */
-        .js .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.85s var(--ease-reveal), transform 0.85s var(--ease-reveal); }
-        .js .reveal.active { opacity: 1; transform: none; }
+        /* Scroll reveal comes from assets/motion.css (.ms-reveal / .is-in). */
 
         /* ── About ───────────────────────────────────────────────── */
         .about-grid { display: grid; grid-template-columns: 1fr; gap: 52px; }
         @media (min-width: 1024px) { .about-grid { grid-template-columns: 4fr 7fr; gap: 88px; } }
-        .about-name { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-bottom: 4px; }
-        .about-role { font-size: 14px; color: var(--ink-70); margin-bottom: 20px; }
+        .about-name { font-family: var(--serif); font-size: 24px; font-weight: 400; margin-bottom: 4px; }
+        .about-role { font-size: 13px; color: var(--ink-70); margin-bottom: 20px; }
         .creds { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 34px; }
         .cred {
-            font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
             padding: 7px 13px; border-radius: 2px;
             background: rgba(209,203,193,0.32); color: var(--obsidian);
         }
         .pull-quote {
             font-family: var(--serif); font-style: italic;
-            font-size: 21px; line-height: 1.5; color: var(--ink-85);
+            font-size: 24px; line-height: 1.45; color: var(--ink-85);
             border-left: 2px solid var(--sand); padding-left: 22px;
         }
         .prose { display: flex; flex-direction: column; gap: 24px; max-width: var(--measure); }
-        .prose p { font-size: clamp(1rem, 1.35vw, 1.11rem); color: var(--ink-85); }
+        .prose p { font-size: 17px; color: var(--ink-85); }
         .on-dark .prose p { color: var(--cloud-85); }
 
         /* ── Colophon rows (metadata table) ──────────────────────── */
@@ -408,10 +564,10 @@
             display: grid; grid-template-columns: 132px 1fr; gap: 18px;
             padding: 13px 0;
             border-bottom: 1px solid var(--cloud-hair);
-            font-size: 14px;
+            font-size: 13px;
         }
         .colophon dt {
-            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em;
             text-transform: uppercase; color: var(--sand);
             align-self: baseline; padding-top: 3px;
         }
@@ -422,7 +578,7 @@
         @media (min-width: 1024px) { .book-grid { grid-template-columns: 7fr 5fr; gap: 88px; } }
         .book-sub {
             font-family: var(--serif); font-style: italic; font-weight: 400;
-            font-size: clamp(1.1rem, 1.8vw, 1.3rem); line-height: 1.45;
+            font-size: 17px; line-height: 1.5;
             color: var(--sand); margin-bottom: 30px;
         }
         .book-cover-col { display: flex; justify-content: center; }
@@ -484,10 +640,10 @@
         .lab-card .glyph svg { height: 100%; width: auto; stroke: var(--accent, var(--sand)); }
         .lab-card .idx {
             position: absolute; top: 26px; right: 26px;
-            font-size: 11px; font-weight: 600; letter-spacing: 0.2em; color: var(--sand-ink);
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em; color: var(--ink-55);
         }
-        .lab-card h3 { font-size: 23px; margin-bottom: 12px; }
-        .lab-card p { font-size: 14px; line-height: 1.7; color: var(--ink-70); }
+        .lab-card h3 { font-size: 17px; margin-bottom: 12px; }
+        .lab-card p { font-size: 13px; line-height: 1.7; color: var(--ink-70); }
 
         .lab-lower { display: grid; grid-template-columns: 1fr; gap: 48px; }
         @media (min-width: 1024px) { .lab-lower { grid-template-columns: 1fr 1fr; gap: 80px; } }
@@ -500,13 +656,13 @@
         }
         .roadmap-item.first { border-top: none; padding-top: 0; }
         .roadmap-item.first::before { top: 8px; }
-        .roadmap-item h4 { font-size: 20px; margin-bottom: 6px; }
-        .roadmap-item p { font-size: 14px; line-height: 1.7; color: var(--cloud-70); }
+        .roadmap-item h4 { font-size: 17px; margin-bottom: 6px; }
+        .roadmap-item p { font-size: 13px; line-height: 1.7; color: var(--cloud-70); }
         .lab-cta { display: flex; flex-direction: column; justify-content: center; }
-        .lab-cta h3 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin-bottom: 18px; }
-        .lab-cta > p { font-size: 15.5px; color: var(--ink-85); max-width: 34rem; margin-bottom: 32px; }
+        .lab-cta h3 { font-size: 24px; margin-bottom: 18px; }
+        .lab-cta > p { font-size: 17px; color: var(--ink-85); max-width: 34rem; margin-bottom: 32px; }
         .lab-cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; }
-        .lab-cta-row .fine { font-size: 12px; color: var(--ink-70); }
+        .lab-cta-row .fine { font-size: 12px; letter-spacing: 0.02em; color: var(--ink-70); }
 
         /* ── Masterclass ─────────────────────────────────────────── */
         .mc-grid { display: grid; grid-template-columns: 1fr; gap: 56px; align-items: start; }
@@ -516,7 +672,7 @@
         .covers-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
         .covers-list li {
             position: relative; padding-left: 20px;
-            font-size: 14.5px; line-height: 1.65; color: var(--cloud-85);
+            font-size: 13px; line-height: 1.75; color: var(--cloud-85);
         }
         .covers-list li::before {
             content: ''; position: absolute; left: 0; top: 12px;
@@ -526,7 +682,7 @@
         /* ── Writing ─────────────────────────────────────────────── */
         .writing-head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 58px; }
         @media (min-width: 900px) { .writing-head { flex-direction: row; justify-content: space-between; align-items: flex-end; } }
-        .writing-head .blurb { max-width: 26rem; font-size: 15px; color: var(--ink-70); }
+        .writing-head .blurb { max-width: 26rem; font-size: 13px; color: var(--ink-70); }
         .paper { display: block; text-decoration: none; }
         .paper-inner {
             display: grid; grid-template-columns: 1fr; gap: 10px;
@@ -539,24 +695,24 @@
         }
         .paper:hover .paper-inner, .paper:focus-visible .paper-inner { transform: translateX(10px); }
         .paper .num {
-            font-family: var(--serif); font-size: 34px; font-weight: 400;
-            color: var(--sand-ink); line-height: 1;
+            font-family: var(--serif); font-size: 24px; font-weight: 400;
+            color: var(--ink-55); line-height: 1.1;
             transition: color 0.3s;
         }
         .paper:hover .num { color: var(--teal); }
         .paper .venue {
             display: block;
-            font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--sand-ink); margin-bottom: 8px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--ink-55); margin-bottom: 8px;
         }
         .paper h3 {
-            font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 500;
+            font-size: 24px; font-weight: 400;
             margin-bottom: 8px; transition: color 0.3s;
         }
         .paper:hover h3 { color: var(--teal-deep); }
-        .paper .abs { display: block; font-size: 14px; line-height: 1.7; color: var(--ink-70); max-width: 52rem; }
+        .paper .abs { display: block; font-size: 13px; line-height: 1.7; color: var(--ink-70); max-width: 52rem; }
         .paper .read { align-self: center; white-space: nowrap; }
-        @media (max-width: 899px) { .paper .num { font-size: 26px; } .paper .read { margin-top: 6px; } }
+        @media (max-width: 899px) { .paper .read { margin-top: 6px; } }
 
         /* ── Contact ─────────────────────────────────────────────── */
         .contact {
@@ -566,7 +722,7 @@
             overflow: clip;
         }
         .contact::before {
-            content: ''; position: absolute; inset: 0;
+            content: none; position: absolute; inset: 0;
             background-image:
                 linear-gradient(var(--hairline-lt) 1px, transparent 1px),
                 linear-gradient(90deg, var(--hairline-lt) 1px, transparent 1px);
@@ -576,21 +732,22 @@
             pointer-events: none;
         }
         .contact .wrap { position: relative; }
-        .contact h2 { font-size: clamp(2.4rem, 5.5vw, 4.2rem); margin-bottom: 26px; }
-        .contact p { max-width: 34rem; margin: 0 auto 40px; font-size: 1.08rem; color: var(--ink-85); }
+        .contact h2 { font-size: clamp(2.1rem, 4.2vw, 3.3rem); margin-bottom: 26px; }
+        .contact p { max-width: 34rem; margin: 0 auto 40px; font-size: 17px; color: var(--ink-85); }
 
         /* ── Footer ──────────────────────────────────────────────── */
-        footer { border-top: 1px solid var(--hairline); padding: 52px 0 44px; }
+        footer { position: relative; overflow: hidden; border-top: 1px solid var(--hairline-lt); padding: 52px 0 44px; }
+        footer > .wrap { position: relative; z-index: 1; }
         .foot-legal {
-            font-size: 12px; line-height: 1.8; color: var(--ink-70);
+            font-size: 13px; line-height: 1.75; color: var(--ink-70);
             padding-bottom: 30px; margin-bottom: 30px;
             border-bottom: 1px solid var(--hairline-lt);
         }
         .foot-row { display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center; }
         @media (min-width: 900px) { .foot-row { flex-direction: row; justify-content: space-between; text-align: left; } }
-        .foot-mark { font-family: var(--serif); font-size: 20px; font-weight: 600; }
+        .foot-mark { font-family: var(--serif); font-size: 24px; font-weight: 400; }
         .foot-mark span { color: var(--sand); }
-        .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; font-size: 13.5px; }
+        .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; font-size: 13px; }
         .foot-links a { text-decoration: none; transition: color 0.3s; }
         .foot-links a:hover { color: var(--teal-deep); }
         .foot-copy { font-size: 13px; color: var(--ink-70); }
@@ -598,9 +755,9 @@
         /* ── Reduced motion ──────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
-            .js .rise, .js .reveal { opacity: 1; transform: none; animation: none; transition: none; }
-            .js .fan .draw { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
-            .js .fan .dot { animation: none; opacity: 1; }
+            .js .rise { opacity: 1; transform: none; animation: none; transition: none; }
+            .plate-wipe { animation: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+            .seam { animation: none; opacity: 1; }
             .js #overlay.open .overlay-links a { animation: none; }
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -613,14 +770,16 @@
 <body>
 
     <a href="#top" class="skip-link">Skip to content</a>
+    <svg class="ms-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><g id="ms-lat-lines"><path d="M-189.7 -145.7Q-116.4 -162.7 -43.0 -146.2M-189.7 -145.7Q-138.8 -91.0 -69.3 -63.6M-43.0 -146.2Q20.0 -157.4 80.9 -137.4M-43.0 -146.2Q-60.1 -106.2 -69.3 -63.6M-43.0 -146.2Q23.1 -91.6 51.9 -10.8M80.9 -137.4Q137.4 -132.3 191.6 -149.2M80.9 -137.4Q77.3 -71.7 51.9 -10.8M80.9 -137.4Q122.3 -91.6 164.6 -46.6M191.6 -149.2Q289.4 -138.9 384.7 -163.2M191.6 -149.2Q181.4 -97.1 164.6 -46.6M191.6 -149.2Q235.2 -98.2 288.9 -58.1M384.7 -163.2Q424.4 -159.3 459.8 -140.8M384.7 -163.2Q347.7 -100.7 288.9 -58.1M384.7 -163.2Q411.8 -109.0 437.9 -54.3M459.8 -140.8Q540.5 -158.5 622.5 -148.2M459.8 -140.8Q456.3 -95.7 437.9 -54.3M459.8 -140.8Q519.5 -86.1 581.7 -34.3M622.5 -148.2Q665.5 -175.7 716.3 -179.8M622.5 -148.2Q585.3 -97.3 581.7 -34.3M622.5 -148.2Q638.2 -78.4 674.9 -16.9M716.3 -179.8Q814.0 -205.8 910.0 -173.9M716.3 -179.8Q686.6 -100.6 674.9 -16.9M716.3 -179.8Q764.3 -88.0 849.8 -29.5M910.0 -173.9Q948.4 -137.4 997.5 -117.7M910.0 -173.9Q868.7 -106.4 849.8 -29.5M910.0 -173.9Q910.7 -83.6 958.8 -7.2M997.5 -117.7Q1086.7 -147.5 1180.1 -137.1M997.5 -117.7Q971.4 -64.9 958.8 -7.2M997.5 -117.7Q1021.3 -71.4 1066.7 -45.9M1180.1 -137.1Q1214.9 -140.8 1249.8 -138.3M1180.1 -137.1Q1137.4 -74.1 1066.7 -45.9M1180.1 -137.1Q1180.0 -78.7 1183.1 -20.4M1249.8 -138.3Q1315.7 -147.3 1375.0 -117.1M1249.8 -138.3Q1221.8 -76.3 1183.1 -20.4M1249.8 -138.3Q1288.9 -67.7 1335.9 -2.0M1375.0 -117.1Q1484.3 -119.9 1583.8 -165.1M1375.0 -117.1Q1338.6 -65.3 1335.9 -2.0M1375.0 -117.1Q1425.0 -73.2 1489.4 -56.8M1583.8 -165.1Q1649.4 -175.9 1713.0 -156.3M1583.8 -165.1Q1541.7 -106.5 1489.4 -56.8M1583.8 -165.1Q1630.2 -121.3 1646.0 -59.5M1713.0 -156.3Q1772.3 -163.2 1832.0 -164.4M1713.0 -156.3Q1681.2 -106.7 1646.0 -59.5M1713.0 -156.3Q1742.7 -94.5 1775.7 -34.4M1832.0 -164.4Q1880.8 -156.5 1930.2 -156.4M1832.0 -164.4Q1820.6 -92.1 1775.7 -34.4M1832.0 -164.4Q1855.7 -91.0 1904.8 -31.5M-69.3 -63.6Q-5.7 -44.1 51.9 -10.8M-69.3 -63.6Q-128.7 -21.1 -156.2 46.6M-69.3 -63.6Q-41.2 -1.3 -39.4 67.0M51.9 -10.8Q111.3 -18.9 164.6 -46.6M51.9 -10.8Q-3.0 17.3 -39.4 67.0M51.9 -10.8Q64.8 38.9 103.5 72.7M164.6 -46.6Q226.6 -53.5 288.9 -58.1M164.6 -46.6Q117.3 4.5 103.5 72.7M164.6 -46.6Q182.1 25.2 207.0 94.8M288.9 -58.1Q362.9 -36.3 437.9 -54.3M288.9 -58.1Q264.0 27.0 207.0 94.8M288.9 -58.1Q325.7 9.0 369.8 71.5M437.9 -54.3Q509.0 -38.6 581.7 -34.3M437.9 -54.3Q395.7 4.2 369.8 71.5M437.9 -54.3Q490.5 11.7 505.3 94.7M581.7 -34.3Q629.2 -30.4 674.9 -16.9M581.7 -34.3Q549.0 33.5 505.3 94.7M581.7 -34.3Q611.7 13.1 640.6 61.1M674.9 -16.9Q763.1 -12.8 849.8 -29.5M674.9 -16.9Q652.1 19.6 640.6 61.1M674.9 -16.9Q701.5 24.1 715.3 71.0M849.8 -29.5Q902.1 -7.3 958.8 -7.2M849.8 -29.5Q784.5 23.4 715.3 71.0M849.8 -29.5Q837.0 39.8 863.6 105.1M958.8 -7.2Q1012.6 -27.2 1066.7 -45.9M958.8 -7.2Q911.9 49.5 863.6 105.1M958.8 -7.2Q972.2 55.6 1007.3 109.4M1066.7 -45.9Q1124.5 -31.3 1183.1 -20.4M1066.7 -45.9Q1030.5 29.3 1007.3 109.4M1066.7 -45.9Q1100.4 2.7 1117.6 59.3M1183.1 -20.4Q1258.9 -6.0 1335.9 -2.0M1183.1 -20.4Q1151.1 20.1 1117.6 59.3M1183.1 -20.4Q1213.2 33.0 1267.4 61.6M1335.9 -2.0Q1409.2 -38.9 1489.4 -56.8M1335.9 -2.0Q1308.1 36.8 1267.4 61.6M1335.9 -2.0Q1367.4 53.2 1418.3 91.2M1489.4 -56.8Q1568.1 -36.0 1646.0 -59.5M1489.4 -56.8Q1474.5 27.1 1418.3 91.2M1489.4 -56.8Q1516.5 8.8 1509.4 79.4M1646.0 -59.5Q1711.0 -47.9 1775.7 -34.4M1646.0 -59.5Q1588.2 20.2 1509.4 79.4M1646.0 -59.5Q1634.2 15.1 1659.9 86.1M1775.7 -34.4Q1840.6 -50.3 1904.8 -31.5M1775.7 -34.4Q1705.0 13.6 1659.9 86.1M1775.7 -34.4Q1791.2 16.0 1800.5 67.9M1904.8 -31.5Q1947.1 -31.2 1988.5 -22.2M1904.8 -31.5Q1852.8 18.4 1800.5 67.9M1904.8 -31.5Q1900.8 11.3 1911.1 53.0M-156.2 46.6Q-100.4 71.9 -39.4 67.0M-156.2 46.6Q-120.1 123.1 -116.2 207.7M-39.4 67.0Q31.9 75.2 103.5 72.7M-39.4 67.0Q-87.5 132.0 -116.2 207.7M-39.4 67.0Q8.4 125.6 60.1 180.9M103.5 72.7Q155.2 84.1 207.0 94.8M103.5 72.7Q93.3 131.4 60.1 180.9M103.5 72.7Q149.6 143.4 177.2 223.1M207.0 94.8Q287.4 76.4 369.8 71.5M207.0 94.8Q194.2 159.4 177.2 223.1M207.0 94.8Q243.5 153.6 272.3 216.5M369.8 71.5Q434.4 101.3 505.3 94.7M369.8 71.5Q323.3 145.5 272.3 216.5M369.8 71.5Q431.0 138.8 447.2 228.3M505.3 94.7Q570.7 69.0 640.6 61.1M505.3 94.7Q495.2 169.7 447.2 228.3M505.3 94.7Q548.2 122.9 582.8 160.9M640.6 61.1Q678.4 62.4 715.3 71.0M640.6 61.1Q598.3 103.2 582.8 160.9M640.6 61.1Q701.4 133.6 711.7 227.6M715.3 71.0Q792.8 73.3 863.6 105.1M715.3 71.0Q688.9 148.7 711.7 227.6M715.3 71.0Q732.4 157.2 791.5 222.3M863.6 105.1Q935.5 105.4 1007.3 109.4M863.6 105.1Q835.9 168.8 791.5 222.3M863.6 105.1Q911.3 151.0 963.8 191.4M1007.3 109.4Q1058.7 76.0 1117.6 59.3M1007.3 109.4Q979.4 147.2 963.8 191.4M1007.3 109.4Q1014.3 165.1 1048.3 209.7M1117.6 59.3Q1192.3 76.3 1267.4 61.6M1117.6 59.3Q1103.9 144.2 1048.3 209.7M1117.6 59.3Q1151.6 138.0 1190.4 214.3M1267.4 61.6Q1345.2 64.4 1418.3 91.2M1267.4 61.6Q1252.0 149.6 1190.4 214.3M1267.4 61.6Q1292.3 142.8 1351.1 204.2M1418.3 91.2Q1463.5 82.4 1509.4 79.4M1418.3 91.2Q1401.1 157.4 1351.1 204.2M1418.3 91.2Q1467.9 129.3 1488.8 188.2M1509.4 79.4Q1584.0 96.1 1659.9 86.1M1509.4 79.4Q1515.6 136.9 1488.8 188.2M1509.4 79.4Q1544.2 128.9 1574.0 181.6M1659.9 86.1Q1732.8 97.3 1800.5 67.9M1659.9 86.1Q1628.8 144.5 1574.0 181.6M1659.9 86.1Q1692.4 123.1 1712.3 168.1M1800.5 67.9Q1853.7 45.2 1911.1 53.0M1800.5 67.9Q1765.7 126.2 1712.3 168.1M1800.5 67.9Q1817.0 119.3 1836.6 169.7M-116.2 207.7Q-30.7 176.7 60.1 180.9M-116.2 207.7Q-126.6 278.2 -166.0 337.6M-116.2 207.7Q-69.2 263.2 -49.0 333.1M60.1 180.9Q114.1 214.5 177.2 223.1M60.1 180.9Q5.0 256.6 -49.0 333.1M60.1 180.9Q90.1 239.0 101.2 303.4M177.2 223.1Q224.9 221.7 272.3 216.5M177.2 223.1Q130.4 254.9 101.2 303.4M177.2 223.1Q195.2 261.3 196.4 303.6M272.3 216.5Q360.3 214.6 447.2 228.3M272.3 216.5Q236.8 262.2 196.4 303.6M272.3 216.5Q323.8 266.4 384.9 304.0M447.2 228.3Q522.1 208.9 582.8 160.9M447.2 228.3Q426.6 274.8 384.9 304.0M447.2 228.3Q468.1 288.7 519.7 326.4M582.8 160.9Q638.0 212.2 711.7 227.6M582.8 160.9Q551.6 243.8 519.7 326.4M582.8 160.9Q605.9 234.0 612.4 310.4M711.7 227.6Q751.0 216.0 791.5 222.3M711.7 227.6Q672.0 280.9 612.4 310.4M711.7 227.6Q725.0 279.3 723.1 332.7M791.5 222.3Q877.6 206.6 963.8 191.4M791.5 222.3Q743.8 269.2 723.1 332.7M791.5 222.3Q807.1 275.6 846.9 314.3M963.8 191.4Q1003.5 212.6 1048.3 209.7M963.8 191.4Q893.7 241.9 846.9 314.3M963.8 191.4Q1018.6 257.6 1041.6 340.4M1048.3 209.7Q1118.9 224.8 1190.4 214.3M1048.3 209.7Q1032.5 274.4 1041.6 340.4M1048.3 209.7Q1092.2 273.8 1153.9 321.0M1190.4 214.3Q1271.9 228.2 1351.1 204.2M1190.4 214.3Q1172.6 267.8 1153.9 321.0M1190.4 214.3Q1223.4 260.9 1247.6 312.6M1351.1 204.2Q1420.5 200.9 1488.8 188.2M1351.1 204.2Q1314.6 273.0 1247.6 312.6M1351.1 204.2Q1381.0 264.6 1373.0 331.4M1488.8 188.2Q1532.2 194.7 1574.0 181.6M1488.8 188.2Q1417.0 248.6 1373.0 331.4M1488.8 188.2Q1507.4 262.5 1509.4 339.0M1574.0 181.6Q1641.4 156.7 1712.3 168.1M1574.0 181.6Q1530.2 255.5 1509.4 339.0M1574.0 181.6Q1648.5 217.4 1699.3 282.6M1712.3 168.1Q1774.7 150.5 1836.6 169.7M1712.3 168.1Q1717.7 226.7 1699.3 282.6M1712.3 168.1Q1775.2 246.1 1847.2 315.9M1836.6 169.7Q1909.1 145.8 1982.9 165.5M1836.6 169.7Q1820.8 244.3 1847.2 315.9M1836.6 169.7Q1914.7 234.2 1960.2 324.7M-166.0 337.6Q-107.4 337.4 -49.0 333.1M-166.0 337.6Q-125.4 376.7 -92.0 422.2M-49.0 333.1Q22.1 297.8 101.2 303.4M-49.0 333.1Q-83.0 371.6 -92.0 422.2M-49.0 333.1Q-17.6 402.1 39.9 451.6M101.2 303.4Q148.8 288.6 196.4 303.6M101.2 303.4Q71.1 377.7 39.9 451.6M101.2 303.4Q119.2 358.6 163.4 396.2M196.4 303.6Q290.7 308.1 384.9 304.0M196.4 303.6Q184.6 351.6 163.4 396.2M196.4 303.6Q211.8 384.6 255.3 454.7M384.9 304.0Q449.0 335.4 519.7 326.4M384.9 304.0Q341.4 397.7 255.3 454.7M384.9 304.0Q427.6 374.9 455.2 452.9M519.7 326.4Q564.3 308.3 612.4 310.4M519.7 326.4Q469.4 380.5 455.2 452.9M519.7 326.4Q542.8 378.4 590.9 408.7M612.4 310.4Q671.1 305.1 723.1 332.7M612.4 310.4Q591.4 357.4 590.9 408.7M612.4 310.4Q622.6 382.4 670.2 437.4M723.1 332.7Q787.3 339.1 846.9 314.3M723.1 332.7Q711.0 392.3 670.2 437.4M723.1 332.7Q774.5 403.2 845.8 453.5M846.9 314.3Q948.1 298.9 1041.6 340.4M846.9 314.3Q845.3 383.9 845.8 453.5M846.9 314.3Q907.5 371.0 987.2 394.1M1041.6 340.4Q1100.7 347.5 1153.9 321.0M1041.6 340.4Q1010.5 363.3 987.2 394.1M1041.6 340.4Q1059.8 380.5 1056.9 424.4M1153.9 321.0Q1200.7 315.9 1247.6 312.6M1153.9 321.0Q1112.5 379.3 1056.9 424.4M1153.9 321.0Q1198.8 372.0 1218.2 437.2M1247.6 312.6Q1313.2 302.7 1373.0 331.4M1247.6 312.6Q1239.9 376.6 1218.2 437.2M1247.6 312.6Q1289.4 350.1 1321.7 396.0M1373.0 331.4Q1440.7 344.7 1509.4 339.0M1373.0 331.4Q1340.6 358.4 1321.7 396.0M1373.0 331.4Q1448.3 384.7 1508.3 454.9M1509.4 339.0Q1604.0 309.4 1699.3 282.6M1509.4 339.0Q1504.3 396.9 1508.3 454.9M1509.4 339.0Q1558.9 376.4 1599.7 423.2M1699.3 282.6Q1769.7 315.2 1847.2 315.9M1699.3 282.6Q1632.3 340.7 1599.7 423.2M1699.3 282.6Q1723.7 354.9 1765.5 418.8M1847.2 315.9Q1903.4 324.0 1960.2 324.7M1847.2 315.9Q1792.6 356.4 1765.5 418.8M1847.2 315.9Q1844.9 367.5 1865.9 414.6M-92.0 422.2Q-29.9 453.8 39.9 451.6M-92.0 422.2Q-129.9 497.9 -180.4 566.0M-92.0 422.2Q-63.9 482.2 -65.0 548.5M39.9 451.6Q94.9 408.9 163.4 396.2M39.9 451.6Q-23.3 488.5 -65.0 548.5M39.9 451.6Q70.4 483.7 94.8 520.7M163.4 396.2Q202.8 435.7 255.3 454.7M163.4 396.2Q115.9 451.2 94.8 520.7M163.4 396.2Q198.6 465.0 248.4 524.2M255.3 454.7Q355.2 448.9 455.2 452.9M255.3 454.7Q260.5 490.3 248.4 524.2M255.3 454.7Q291.0 492.6 339.3 512.0M455.2 452.9Q525.4 437.9 590.9 408.7M455.2 452.9Q389.4 467.1 339.3 512.0M455.2 452.9Q478.8 511.3 503.0 569.5M590.9 408.7Q626.0 435.6 670.2 437.4M590.9 408.7Q559.0 495.7 503.0 569.5M590.9 408.7Q589.5 467.7 581.2 526.0M670.2 437.4Q757.8 447.0 845.8 453.5M670.2 437.4Q628.6 484.7 581.2 526.0M670.2 437.4Q701.8 504.9 742.4 567.3M845.8 453.5Q907.9 403.3 987.2 394.1M845.8 453.5Q795.4 511.6 742.4 567.3M845.8 453.5Q841.9 502.7 848.7 551.6M987.2 394.1Q1018.4 417.6 1056.9 424.4M987.2 394.1Q919.8 474.5 848.7 551.6M987.2 394.1Q1029.6 442.3 1037.9 506.0M1056.9 424.4Q1136.9 438.7 1218.2 437.2M1056.9 424.4Q1059.9 468.1 1037.9 506.0M1056.9 424.4Q1112.5 496.7 1182.3 555.4M1218.2 437.2Q1265.9 406.4 1321.7 396.0M1218.2 437.2Q1207.2 498.4 1182.3 555.4M1218.2 437.2Q1260.5 463.3 1290.4 503.1M1321.7 396.0Q1407.0 450.9 1508.3 454.9M1321.7 396.0Q1309.7 450.6 1290.4 503.1M1321.7 396.0Q1361.6 467.7 1414.8 530.2M1508.3 454.9Q1555.7 444.0 1599.7 423.2M1508.3 454.9Q1464.5 496.1 1414.8 530.2M1508.3 454.9Q1545.1 507.4 1574.7 564.3M1599.7 423.2Q1682.9 431.7 1765.5 418.8M1599.7 423.2Q1608.2 497.5 1574.7 564.3M1599.7 423.2Q1635.0 500.0 1705.7 546.4M1765.5 418.8Q1816.1 425.7 1865.9 414.6M1765.5 418.8Q1746.7 487.8 1705.7 546.4M1765.5 418.8Q1791.9 473.6 1785.9 534.1M1865.9 414.6Q1926.2 410.4 1980.5 437.0M1865.9 414.6Q1807.3 461.9 1785.9 534.1M1865.9 414.6Q1873.4 486.4 1907.1 550.1M-180.4 566.0Q-121.0 568.3 -65.0 548.5M-180.4 566.0Q-174.4 620.8 -143.5 666.5M-65.0 548.5Q18.7 556.3 94.8 520.7M-65.0 548.5Q-123.1 594.9 -143.5 666.5M-65.0 548.5Q-18.5 579.2 7.3 628.5M94.8 520.7Q171.8 510.5 248.4 524.2M94.8 520.7Q48.3 572.4 7.3 628.5M94.8 520.7Q127.7 579.8 160.9 638.8M248.4 524.2Q294.7 524.8 339.3 512.0M248.4 524.2Q219.6 592.9 160.9 638.8M248.4 524.2Q264.3 589.0 308.5 639.0M339.3 512.0Q424.6 530.7 503.0 569.5M339.3 512.0Q336.5 578.6 308.5 639.0M339.3 512.0Q382.3 568.6 384.6 639.7M503.0 569.5Q535.8 536.4 581.2 526.0M503.0 569.5Q438.1 594.9 384.6 639.7M503.0 569.5Q509.9 621.0 535.7 666.2M581.2 526.0Q656.8 566.3 742.4 567.3M581.2 526.0Q563.7 597.8 535.7 666.2M581.2 526.0Q630.7 594.5 706.1 632.8M742.4 567.3Q793.5 545.4 848.7 551.6M742.4 567.3Q730.3 603.4 706.1 632.8M742.4 567.3Q768.0 611.7 801.2 650.8M848.7 551.6Q942.1 523.7 1037.9 506.0M848.7 551.6Q819.5 598.6 801.2 650.8M848.7 551.6Q877.2 615.8 930.0 662.1M1037.9 506.0Q1116.7 511.6 1182.3 555.4M1037.9 506.0Q960.5 567.8 930.0 662.1M1037.9 506.0Q1061.7 593.2 1061.6 683.6M1182.3 555.4Q1233.1 522.4 1290.4 503.1M1182.3 555.4Q1141.0 637.4 1061.6 683.6M1182.3 555.4Q1210.2 604.1 1206.3 660.1M1290.4 503.1Q1354.7 506.9 1414.8 530.2M1290.4 503.1Q1245.7 580.2 1206.3 660.1M1290.4 503.1Q1313.2 583.9 1326.7 666.8M1414.8 530.2Q1493.7 552.0 1574.7 564.3M1414.8 530.2Q1369.6 597.7 1326.7 666.8M1414.8 530.2Q1416.3 580.1 1444.0 621.6M1574.7 564.3Q1639.7 551.4 1705.7 546.4M1574.7 564.3Q1507.1 587.9 1444.0 621.6M1574.7 564.3Q1588.1 612.7 1625.3 646.5M1705.7 546.4Q1746.3 543.3 1785.9 534.1M1705.7 546.4Q1672.2 601.8 1625.3 646.5M1705.7 546.4Q1720.7 597.1 1736.5 647.6M1785.9 534.1Q1848.8 524.4 1907.1 550.1M1785.9 534.1Q1762.8 591.5 1736.5 647.6M1785.9 534.1Q1820.9 599.3 1871.3 653.5M-143.5 666.5Q-62.8 668.7 7.3 628.5M-143.5 666.5Q-164.8 732.4 -181.9 799.6M-143.5 666.5Q-79.9 709.2 -20.2 757.4M7.3 628.5Q83.6 640.9 160.9 638.8M7.3 628.5Q-2.4 693.8 -20.2 757.4M7.3 628.5Q79.4 685.6 126.4 764.7M160.9 638.8Q234.6 655.7 308.5 639.0M160.9 638.8Q149.9 703.5 126.4 764.7M160.9 638.8Q220.1 701.4 254.6 780.4M308.5 639.0Q346.5 641.0 384.6 639.7M308.5 639.0Q302.7 717.8 254.6 780.4M308.5 639.0Q325.5 708.9 367.8 767.1M384.6 639.7Q456.9 671.3 535.7 666.2M384.6 639.7Q373.2 703.0 367.8 767.1M384.6 639.7Q434.0 711.1 511.5 750.3M535.7 666.2Q623.1 660.9 706.1 632.8M535.7 666.2Q520.3 707.3 511.5 750.3M535.7 666.2Q593.4 688.4 627.8 739.8M706.1 632.8Q753.1 644.5 801.2 650.8M706.1 632.8Q665.1 684.9 627.8 739.8M706.1 632.8Q734.6 709.4 749.8 789.8M801.2 650.8Q864.9 664.6 930.0 662.1M801.2 650.8Q764.0 716.0 749.8 789.8M801.2 650.8Q861.6 687.1 896.9 748.2M930.0 662.1Q997.3 663.7 1061.6 683.6M930.0 662.1Q915.0 705.7 896.9 748.2M930.0 662.1Q960.8 727.1 1016.4 772.6M1061.6 683.6Q1132.3 661.4 1206.3 660.1M1061.6 683.6Q1032.1 724.6 1016.4 772.6M1061.6 683.6Q1110.8 724.0 1166.6 754.8M1206.3 660.1Q1265.7 677.6 1326.7 666.8M1206.3 660.1Q1178.0 703.9 1166.6 754.8M1206.3 660.1Q1256.0 709.7 1269.0 778.6M1326.7 666.8Q1387.9 651.0 1444.0 621.6M1326.7 666.8Q1307.0 727.4 1269.0 778.6M1326.7 666.8Q1390.0 703.2 1445.8 750.3M1444.0 621.6Q1533.3 643.3 1625.3 646.5M1444.0 621.6Q1443.0 685.9 1445.8 750.3M1444.0 621.6Q1509.2 695.4 1530.7 791.5M1625.3 646.5Q1680.8 653.7 1736.5 647.6M1625.3 646.5Q1581.5 721.3 1530.7 791.5M1625.3 646.5Q1674.7 697.7 1701.7 763.5M1736.5 647.6Q1803.3 663.6 1871.3 653.5M1736.5 647.6Q1704.3 701.1 1701.7 763.5M1736.5 647.6Q1776.6 697.7 1797.9 758.3M1871.3 653.5Q1927.7 649.2 1977.4 676.1M1871.3 653.5Q1843.2 711.9 1797.9 758.3M1871.3 653.5Q1879.0 710.2 1901.6 762.7M-181.9 799.6Q-100.2 782.0 -20.2 757.4M-181.9 799.6Q-143.6 832.2 -100.4 858.1M-20.2 757.4Q52.1 779.6 126.4 764.7M-20.2 757.4Q-44.5 820.4 -100.4 858.1M-20.2 757.4Q19.5 801.3 38.7 857.4M126.4 764.7Q192.2 758.1 254.6 780.4M126.4 764.7Q96.4 824.2 38.7 857.4M126.4 764.7Q126.1 807.0 136.8 847.8M254.6 780.4Q310.6 768.4 367.8 767.1M254.6 780.4Q203.6 827.8 136.8 847.8M254.6 780.4Q293.3 837.8 292.5 907.0M367.8 767.1Q439.7 758.7 511.5 750.3M367.8 767.1Q340.3 842.5 292.5 907.0M367.8 767.1Q384.2 832.8 386.7 900.4M511.5 750.3Q569.2 740.5 627.8 739.8M511.5 750.3Q440.8 818.5 386.7 900.4M511.5 750.3Q549.7 799.6 564.3 860.2M627.8 739.8Q683.8 776.9 749.8 789.8M627.8 739.8Q613.1 809.0 564.3 860.2M627.8 739.8Q631.1 802.3 663.5 855.9M749.8 789.8Q822.4 765.7 896.9 748.2M749.8 789.8Q709.3 826.3 663.5 855.9M749.8 789.8Q777.6 827.3 802.0 867.0M896.9 748.2Q954.1 773.0 1016.4 772.6M896.9 748.2Q832.5 794.0 802.0 867.0M896.9 748.2Q911.9 801.2 943.1 846.6M1016.4 772.6Q1090.8 758.0 1166.6 754.8M1016.4 772.6Q980.0 809.9 943.1 846.6M1016.4 772.6Q1060.3 801.6 1085.6 847.7M1166.6 754.8Q1220.0 757.1 1269.0 778.6M1166.6 754.8Q1130.3 804.9 1085.6 847.7M1166.6 754.8Q1180.4 815.8 1189.9 877.7M1269.0 778.6Q1356.3 757.4 1445.8 750.3M1269.0 778.6Q1242.3 838.4 1189.9 877.7M1269.0 778.6Q1312.1 839.0 1353.8 900.4M1445.8 750.3Q1486.3 775.0 1530.7 791.5M1445.8 750.3Q1382.0 814.4 1353.8 900.4M1445.8 750.3Q1429.8 833.2 1456.7 913.2M1530.7 791.5Q1618.3 790.1 1701.7 763.5M1530.7 791.5Q1482.6 845.6 1456.7 913.2M1530.7 791.5Q1542.1 842.3 1580.0 878.0M1701.7 763.5Q1749.7 758.7 1797.9 758.3M1701.7 763.5Q1635.8 815.4 1580.0 878.0M1701.7 763.5Q1746.2 820.2 1780.5 883.6M1797.9 758.3Q1849.4 769.1 1901.6 762.7M1797.9 758.3Q1774.9 818.9 1780.5 883.6M1797.9 758.3Q1843.4 816.5 1901.3 862.2M-100.4 858.1Q-30.8 877.9 38.7 857.4M-100.4 858.1Q-112.4 950.4 -164.5 1027.6M-100.4 858.1Q-70.3 934.5 -35.1 1008.8M38.7 857.4Q89.2 867.7 136.8 847.8M38.7 857.4Q10.1 937.1 -35.1 1008.8M38.7 857.4Q74.1 931.3 72.6 1013.2M136.8 847.8Q216.3 873.3 292.5 907.0M136.8 847.8Q117.5 935.5 72.6 1013.2M136.8 847.8Q187.3 919.5 263.3 963.0M292.5 907.0Q338.7 891.0 386.7 900.4M292.5 907.0Q286.6 939.5 263.3 963.0M292.5 907.0Q318.1 937.0 340.2 969.5M386.7 900.4Q476.8 886.2 564.3 860.2M386.7 900.4Q373.9 941.9 340.2 969.5M386.7 900.4Q420.3 935.7 462.3 960.3M564.3 860.2Q613.9 858.3 663.5 855.9M564.3 860.2Q521.1 918.3 462.3 960.3M564.3 860.2Q561.8 923.4 589.6 980.1M663.5 855.9Q731.2 881.0 802.0 867.0M663.5 855.9Q637.6 924.6 589.6 980.1M663.5 855.9Q707.9 914.4 715.6 987.4M802.0 867.0Q872.8 858.3 943.1 846.6M802.0 867.0Q742.6 915.5 715.6 987.4M802.0 867.0Q809.9 945.6 851.7 1012.7M943.1 846.6Q1014.3 852.5 1085.6 847.7M943.1 846.6Q913.2 938.3 851.7 1012.7M943.1 846.6Q961.7 926.0 1019.2 983.9M1085.6 847.7Q1138.6 859.8 1189.9 877.7M1085.6 847.7Q1038.4 909.0 1019.2 983.9M1085.6 847.7Q1128.7 897.7 1147.1 961.1M1189.9 877.7Q1274.5 869.5 1353.8 900.4M1189.9 877.7Q1170.0 920.2 1147.1 961.1M1189.9 877.7Q1225.2 927.1 1254.3 980.3M1353.8 900.4Q1407.3 890.7 1456.7 913.2M1353.8 900.4Q1298.8 933.8 1254.3 980.3M1353.8 900.4Q1384.5 936.3 1411.5 975.2M1456.7 913.2Q1516.3 888.6 1580.0 878.0M1456.7 913.2Q1426.4 938.6 1411.5 975.2M1456.7 913.2Q1485.6 956.8 1526.3 989.7M1580.0 878.0Q1680.7 863.8 1780.5 883.6M1580.0 878.0Q1565.2 939.7 1526.3 989.7M1580.0 878.0Q1656.6 922.3 1709.0 993.7M1780.5 883.6Q1841.3 874.8 1901.3 862.2M1780.5 883.6Q1758.6 947.7 1709.0 993.7M1780.5 883.6Q1798.0 954.1 1844.8 1009.7M1901.3 862.2Q1969.2 879.9 2035.8 902.0M1901.3 862.2Q1871.6 935.4 1844.8 1009.7M1901.3 862.2Q1949.4 938.1 1953.3 1027.8M-164.5 1027.6Q-99.6 1019.8 -35.1 1008.8M-164.5 1027.6Q-121.7 1061.1 -86.6 1102.5M-35.1 1008.8Q19.0 1005.8 72.6 1013.2M-35.1 1008.8Q-50.5 1061.3 -86.6 1102.5M-35.1 1008.8Q-5.0 1051.2 21.2 1096.2M72.6 1013.2Q173.8 1010.3 263.3 963.0M72.6 1013.2Q36.3 1048.2 21.2 1096.2M72.6 1013.2Q96.6 1064.8 126.3 1113.3M263.3 963.0Q301.6 968.0 340.2 969.5M263.3 963.0Q205.0 1047.4 126.3 1113.3M263.3 963.0Q243.1 1029.7 254.9 1098.5M340.2 969.5Q402.1 976.6 462.3 960.3M340.2 969.5Q281.5 1023.3 254.9 1098.5M340.2 969.5Q393.6 1049.3 445.3 1130.0M462.3 960.3Q527.4 960.7 589.6 980.1M462.3 960.3Q466.7 1046.5 445.3 1130.0M462.3 960.3Q496.7 1057.6 574.0 1126.0M589.6 980.1Q651.6 1000.9 715.6 987.4M589.6 980.1Q574.7 1052.3 574.0 1126.0M589.6 980.1Q663.5 1017.7 710.7 1085.7M715.6 987.4Q786.7 983.7 851.7 1012.7M715.6 987.4Q724.2 1037.1 710.7 1085.7M715.6 987.4Q743.6 1041.7 793.0 1077.7M851.7 1012.7Q936.9 1007.1 1019.2 983.9M851.7 1012.7Q831.9 1053.8 793.0 1077.7M851.7 1012.7Q895.2 1082.2 958.8 1133.8M1019.2 983.9Q1084.8 981.7 1147.1 961.1M1019.2 983.9Q1011.0 1067.7 958.8 1133.8M1019.2 983.9Q1030.0 1052.1 1047.2 1119.0M1147.1 961.1Q1202.0 963.3 1254.3 980.3M1147.1 961.1Q1080.0 1029.2 1047.2 1119.0M1147.1 961.1Q1173.6 1033.1 1213.4 1098.7M1254.3 980.3Q1332.7 970.5 1411.5 975.2M1254.3 980.3Q1229.1 1037.9 1213.4 1098.7M1254.3 980.3Q1315.9 1037.6 1337.1 1119.1M1411.5 975.2Q1466.9 997.9 1526.3 989.7M1411.5 975.2Q1395.0 1057.8 1337.1 1119.1M1411.5 975.2Q1461.4 1038.6 1476.2 1117.9M1526.3 989.7Q1617.0 1020.4 1709.0 993.7M1526.3 989.7Q1505.1 1055.4 1476.2 1117.9M1526.3 989.7Q1582.1 1044.7 1643.5 1093.4M1709.0 993.7Q1777.7 994.8 1844.8 1009.7M1709.0 993.7Q1678.0 1044.7 1643.5 1093.4M1709.0 993.7Q1731.1 1042.9 1757.9 1089.7M1844.8 1009.7Q1900.9 1007.9 1953.3 1027.8M1844.8 1009.7Q1792.2 1039.8 1757.9 1089.7M1844.8 1009.7Q1846.2 1066.1 1871.5 1116.6M-86.6 1102.5Q-33.5 1084.6 21.2 1096.2M-86.6 1102.5Q-131.3 1156.8 -159.1 1221.3M-86.6 1102.5Q-71.7 1172.7 -53.3 1242.1M21.2 1096.2Q71.8 1116.6 126.3 1113.3M21.2 1096.2Q5.5 1180.1 -53.3 1242.1M21.2 1096.2Q41.3 1182.1 96.7 1250.8M126.3 1113.3Q192.7 1124.3 254.9 1098.5M126.3 1113.3Q132.6 1186.6 96.7 1250.8M126.3 1113.3Q184.2 1167.6 213.5 1241.4M254.9 1098.5Q352.8 1098.0 445.3 1130.0M254.9 1098.5Q252.5 1175.2 213.5 1241.4M254.9 1098.5Q299.6 1184.9 382.7 1235.8M445.3 1130.0Q509.5 1124.2 574.0 1126.0M445.3 1130.0Q401.6 1175.5 382.7 1235.8M445.3 1130.0Q473.4 1175.1 490.3 1225.4M574.0 1126.0Q642.8 1107.3 710.7 1085.7M574.0 1126.0Q545.8 1187.2 490.3 1225.4M574.0 1126.0Q618.9 1177.0 640.9 1241.4M710.7 1085.7Q751.8 1080.9 793.0 1077.7M710.7 1085.7Q661.9 1157.3 640.9 1241.4M710.7 1085.7Q724.7 1149.1 730.0 1213.8M793.0 1077.7Q867.8 1129.9 958.8 1133.8M793.0 1077.7Q751.9 1141.3 730.0 1213.8M793.0 1077.7Q841.0 1154.4 916.3 1204.6M958.8 1133.8Q1003.5 1129.5 1047.2 1119.0M958.8 1133.8Q933.7 1166.8 916.3 1204.6M958.8 1133.8Q970.2 1189.2 981.9 1244.5M1047.2 1119.0Q1133.2 1132.6 1213.4 1098.7M1047.2 1119.0Q1028.2 1188.8 981.9 1244.5M1047.2 1119.0Q1089.0 1161.2 1136.2 1197.3M1213.4 1098.7Q1276.9 1098.6 1337.1 1119.1M1213.4 1098.7Q1167.9 1142.6 1136.2 1197.3M1213.4 1098.7Q1253.4 1176.5 1291.1 1255.3M1337.1 1119.1Q1406.8 1137.5 1476.2 1117.9M1337.1 1119.1Q1297.3 1181.6 1291.1 1255.3M1337.1 1119.1Q1341.6 1195.3 1388.3 1255.6M1476.2 1117.9Q1562.0 1120.3 1643.5 1093.4M1476.2 1117.9Q1421.9 1180.2 1388.3 1255.6M1476.2 1117.9Q1505.1 1174.8 1517.1 1237.5M1643.5 1093.4Q1701.2 1109.6 1757.9 1089.7M1643.5 1093.4Q1588.3 1172.4 1517.1 1237.5M1643.5 1093.4Q1674.1 1147.0 1673.0 1208.8M1757.9 1089.7Q1816.8 1094.0 1871.5 1116.6M1757.9 1089.7Q1699.7 1138.0 1673.0 1208.8M1757.9 1089.7Q1797.9 1168.9 1827.8 1252.5M1871.5 1116.6Q1926.4 1112.3 1975.7 1136.8M1871.5 1116.6Q1843.8 1182.7 1827.8 1252.5M1871.5 1116.6Q1913.6 1162.7 1966.6 1195.8M-159.1 1221.3Q-103.6 1218.4 -53.3 1242.1M-159.1 1221.3Q-135.5 1290.7 -76.1 1333.4M-53.3 1242.1Q22.4 1233.7 96.7 1250.8M-53.3 1242.1Q-67.0 1287.2 -76.1 1333.4M-53.3 1242.1Q-7.5 1294.8 46.9 1338.7M96.7 1250.8Q154.2 1235.5 213.5 1241.4M96.7 1250.8Q61.4 1288.8 46.9 1338.7M96.7 1250.8Q151.3 1272.7 194.1 1313.2M213.5 1241.4Q297.6 1224.6 382.7 1235.8M213.5 1241.4Q200.0 1276.3 194.1 1313.2M213.5 1241.4Q238.5 1290.5 262.3 1340.3M382.7 1235.8Q437.8 1244.1 490.3 1225.4M382.7 1235.8Q309.3 1272.8 262.3 1340.3M382.7 1235.8Q402.1 1276.5 409.8 1321.1M490.3 1225.4Q566.3 1226.8 640.9 1241.4M490.3 1225.4Q455.6 1277.9 409.8 1321.1M490.3 1225.4Q522.3 1298.0 556.3 1369.6M640.9 1241.4Q688.3 1236.6 730.0 1213.8M640.9 1241.4Q585.1 1296.6 556.3 1369.6M640.9 1241.4Q670.3 1271.3 677.0 1312.7M730.0 1213.8Q824.0 1226.6 916.3 1204.6M730.0 1213.8Q693.9 1258.1 677.0 1312.7M730.0 1213.8Q788.3 1285.4 856.2 1348.1M916.3 1204.6Q950.9 1221.5 981.9 1244.5M916.3 1204.6Q872.1 1270.4 856.2 1348.1M916.3 1204.6Q939.0 1281.8 988.4 1345.4M981.9 1244.5Q1056.2 1211.3 1136.2 1197.3M981.9 1244.5Q987.9 1294.8 988.4 1345.4M981.9 1244.5Q1030.1 1296.4 1063.7 1358.7M1136.2 1197.3Q1205.9 1246.9 1291.1 1255.3M1136.2 1197.3Q1082.8 1270.3 1063.7 1358.7M1136.2 1197.3Q1137.5 1285.5 1184.7 1360.0M1291.1 1255.3Q1339.7 1248.6 1388.3 1255.6M1291.1 1255.3Q1229.5 1299.2 1184.7 1360.0M1291.1 1255.3Q1292.3 1294.6 1314.0 1327.5M1388.3 1255.6Q1454.4 1258.7 1517.1 1237.5M1388.3 1255.6Q1353.3 1293.7 1314.0 1327.5M1388.3 1255.6Q1441.0 1294.0 1493.5 1332.6M1517.1 1237.5Q1591.7 1204.9 1673.0 1208.8M1517.1 1237.5Q1514.4 1287.3 1493.5 1332.6M1517.1 1237.5Q1577.5 1299.0 1642.1 1356.2M1673.0 1208.8Q1747.5 1241.1 1827.8 1252.5M1673.0 1208.8Q1670.2 1285.2 1642.1 1356.2M1673.0 1208.8Q1709.1 1273.9 1760.2 1327.9M1827.8 1252.5Q1898.1 1226.3 1966.6 1195.8M1827.8 1252.5Q1802.9 1298.1 1760.2 1327.9M1827.8 1252.5Q1847.2 1287.9 1853.5 1327.9M-76.1 1333.4Q-14.7 1339.9 46.9 1338.7M-76.1 1333.4Q-100.7 1401.7 -138.7 1463.5M-76.1 1333.4Q-65.5 1393.0 -35.5 1445.5M46.9 1338.7Q124.5 1348.9 194.1 1313.2M46.9 1338.7Q-9.0 1380.7 -35.5 1445.5M46.9 1338.7Q66.5 1413.5 95.3 1485.2M194.1 1313.2Q226.5 1331.0 262.3 1340.3M194.1 1313.2Q140.5 1396.8 95.3 1485.2M194.1 1313.2Q197.3 1372.0 225.2 1424.0M262.3 1340.3Q335.3 1325.2 409.8 1321.1M262.3 1340.3Q256.5 1387.8 225.2 1424.0M262.3 1340.3Q320.8 1395.6 395.4 1425.8M409.8 1321.1Q481.0 1351.5 556.3 1369.6M409.8 1321.1Q386.3 1371.2 395.4 1425.8M409.8 1321.1Q448.4 1366.1 472.3 1420.3M556.3 1369.6Q622.3 1353.1 677.0 1312.7M556.3 1369.6Q513.9 1394.2 472.3 1420.3M556.3 1369.6Q581.9 1427.4 609.0 1484.5M677.0 1312.7Q763.6 1345.7 856.2 1348.1M677.0 1312.7Q645.7 1399.7 609.0 1484.5M677.0 1312.7Q699.9 1377.5 713.7 1444.9M856.2 1348.1Q922.7 1366.5 988.4 1345.4M856.2 1348.1Q783.0 1393.6 713.7 1444.9M856.2 1348.1Q852.0 1397.1 871.2 1442.5M988.4 1345.4Q1024.3 1361.8 1063.7 1358.7M988.4 1345.4Q931.1 1395.5 871.2 1442.5M988.4 1345.4Q1016.7 1413.5 1054.9 1476.6M1063.7 1358.7Q1124.3 1351.5 1184.7 1360.0M1063.7 1358.7Q1059.3 1417.6 1054.9 1476.6M1063.7 1358.7Q1121.8 1409.6 1185.5 1453.4M1184.7 1360.0Q1253.4 1359.9 1314.0 1327.5M1184.7 1360.0Q1193.0 1406.6 1185.5 1453.4M1184.7 1360.0Q1226.7 1401.2 1254.0 1453.4M1314.0 1327.5Q1403.7 1331.6 1493.5 1332.6M1314.0 1327.5Q1301.3 1398.7 1254.0 1453.4M1314.0 1327.5Q1368.0 1404.3 1418.0 1483.8M1493.5 1332.6Q1564.2 1367.2 1642.1 1356.2M1493.5 1332.6Q1450.4 1405.6 1418.0 1483.8M1493.5 1332.6Q1509.4 1392.0 1522.9 1452.0M1642.1 1356.2Q1700.6 1339.8 1760.2 1327.9M1642.1 1356.2Q1570.1 1388.7 1522.9 1452.0M1642.1 1356.2Q1690.1 1405.9 1704.1 1473.6M1760.2 1327.9Q1806.8 1329.7 1853.5 1327.9M1760.2 1327.9Q1733.4 1401.2 1704.1 1473.6M1760.2 1327.9Q1793.6 1392.0 1800.2 1464.0M1853.5 1327.9Q1911.3 1331.3 1967.1 1346.9M1853.5 1327.9Q1847.9 1404.2 1800.2 1464.0M1853.5 1327.9Q1894.1 1380.1 1945.2 1422.1" fill="none" stroke="#121312" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></g><g id="ms-lat-dots"><g fill="#121312" fill-opacity=".16"><circle cx="191.6" cy="-149.2" r="1.7"/><circle cx="1930.2" cy="-156.4" r="1.7"/><circle cx="51.9" cy="-10.8" r="2.0"/><circle cx="288.9" cy="-58.1" r="2.4"/><circle cx="581.7" cy="-34.3" r="2.1"/><circle cx="674.9" cy="-16.9" r="1.9"/><circle cx="1775.7" cy="-34.4" r="1.7"/><circle cx="207.0" cy="94.8" r="2.0"/><circle cx="60.1" cy="180.9" r="2.0"/><circle cx="963.8" cy="191.4" r="2.1"/><circle cx="1190.4" cy="214.3" r="2.1"/><circle cx="1836.6" cy="169.7" r="2.3"/><circle cx="846.9" cy="314.3" r="1.8"/><circle cx="163.4" cy="396.2" r="1.9"/><circle cx="255.3" cy="454.7" r="2.5"/><circle cx="-180.4" cy="566.0" r="1.9"/><circle cx="503.0" cy="569.5" r="2.0"/><circle cx="1705.7" cy="546.4" r="2.5"/><circle cx="801.2" cy="650.8" r="1.7"/><circle cx="1326.7" cy="666.8" r="2.2"/><circle cx="1444.0" cy="621.6" r="2.2"/><circle cx="1736.5" cy="647.6" r="1.6"/><circle cx="511.5" cy="750.3" r="2.2"/><circle cx="1445.8" cy="750.3" r="2.0"/><circle cx="292.5" cy="907.0" r="1.7"/><circle cx="1085.6" cy="847.7" r="2.4"/><circle cx="-164.5" cy="1027.6" r="2.5"/><circle cx="340.2" cy="969.5" r="1.8"/><circle cx="462.3" cy="960.3" r="2.5"/><circle cx="589.6" cy="980.1" r="2.1"/><circle cx="1709.0" cy="993.7" r="2.4"/><circle cx="1844.8" cy="1009.7" r="2.0"/><circle cx="1337.1" cy="1119.1" r="1.8"/><circle cx="1291.1" cy="1255.3" r="1.9"/><circle cx="1517.1" cy="1237.5" r="2.0"/><circle cx="1673.0" cy="1208.8" r="1.9"/><circle cx="677.0" cy="1312.7" r="2.3"/><circle cx="1493.5" cy="1332.6" r="1.6"/><circle cx="1760.2" cy="1327.9" r="1.8"/><circle cx="395.4" cy="1425.8" r="2.3"/><circle cx="472.3" cy="1420.3" r="2.3"/><circle cx="713.7" cy="1444.9" r="1.8"/></g></g><g id="ms-lat-accent"><g><circle cx="39.9" cy="451.6" r="4.2" fill="#2B7A78"/><circle cx="39.9" cy="451.6" r="9.5" fill="none" stroke="#2B7A78" stroke-opacity=".40" stroke-width="1"/><circle cx="1517.1" cy="1237.5" r="4.2" fill="#2B7A78"/><circle cx="1517.1" cy="1237.5" r="9.5" fill="none" stroke="#2B7A78" stroke-opacity=".40" stroke-width="1"/><circle cx="262.3" cy="1340.3" r="4.2" fill="#2B7A78"/><circle cx="262.3" cy="1340.3" r="9.5" fill="none" stroke="#2B7A78" stroke-opacity=".40" stroke-width="1"/><circle cx="1411.5" cy="975.2" r="4.2" fill="#2B7A78"/><circle cx="1411.5" cy="975.2" r="9.5" fill="none" stroke="#2B7A78" stroke-opacity=".40" stroke-width="1"/></g></g></defs></svg>
     <div id="progress" aria-hidden="true"></div>
 
     <!-- ═══════════════ NAV ═══════════════ -->
     <nav id="nav" aria-label="Primary">
+        <div class="latt-nav" aria-hidden="true"><svg class="brand-lattice" viewBox="0 0 1560 1080" width="1560" height="1080" stroke-opacity="0.10" aria-hidden="true" focusable="false"><use href="#ms-lat-lines"></use><use href="#ms-lat-dots"></use></svg></div>
         <div class="nav-inner">
             <a href="#top" class="lockup" aria-label="Model Sense home">
                 <!-- Official brand lockup: brain mark + wordmark + strap (transparent PNG, master in owner-inbox) -->
-                <img src="assets/logo-lockup.png" alt="Model Sense, Intelligence &amp; Judgment" width="1278" height="331">
+                <img src="assets/logo-lockup-nav.png" alt="Model Sense, Intelligence &amp; Judgment" width="430" height="111" fetchpriority="high">
             </a>
 
             <div class="nav-links">
@@ -664,60 +823,50 @@
     </div>
 
     <!-- ═══════════════ HERO ═══════════════ -->
-    <section id="top" class="hero">
-        <div class="wrap hero-grid">
-            <div>
-                <p class="sec-label rise d1"><span class="n">Model Sense</span><span class="t">Intelligence &amp; Judgment</span></p>
-                <h1 class="rise d2">Models are math.<br><em>Risk is human.</em></h1>
-                <p class="lede rise d3">
-                    Model Sense connects ALM modeling knowledge to practical use: a practitioner book, an interactive modeling lab, and a deposit-modeling masterclass for the bank treasury and risk teams who build, validate, and defend these models.
-                </p>
-                <div class="hero-ctas rise d4">
-                    <a href="#book" class="btn-arrow">
-                        <span>Explore the book</span>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                    </a>
-                    <a href="./alm-model-lab/" class="btn-arrow quiet">
-                        <span>Launch the Lab</span>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                    </a>
+    <main id="top" tabindex="-1">
+
+    <section class="hero">
+        <div class="latt-page" aria-hidden="true"><svg class="brand-lattice" viewBox="0 0 1560 1080" width="1560" height="1080" stroke-opacity="0.12" aria-hidden="true" focusable="false"><use href="#ms-lat-lines"></use><use href="#ms-lat-dots"></use><use href="#ms-lat-accent"></use></svg></div>
+
+        <div class="hero-frame">
+            <!-- The plate: cut on the same mesh that draws the lattice beside it,
+                 bled past the right frame edge, revealed by a 900ms wipe. -->
+            <div class="art" aria-hidden="true">
+                <div class="plate-stack">
+                    <div class="plate-cut">
+                        <svg class="contours" viewBox="0 0 1100 520" width="1100" height="520" aria-hidden="true"><path d="M708.7 260.0L707.9 267.5L705.1 274.9L700.6 282.2L694.5 289.1L687.0 295.8L678.1 302.2L667.9 308.1L656.3 313.5L643.6 318.3L629.8 322.6L615.0 326.2L599.4 328.9L583.2 330.7L566.6 331.4L550.0 330.9L533.8 329.6L518.2 327.8L502.7 325.9L487.0 324.1L470.9 322.1L454.7 319.4L439.3 315.7L425.9 310.6L415.7 304.2L408.8 296.9L404.8 289.3L402.4 281.7L400.5 274.4L398.4 267.2L396.2 260.0L394.7 252.6L395.0 245.1L397.7 237.6L403.1 230.4L411.1 223.7L421.1 217.6L432.7 212.1L445.3 207.3L458.6 203.0L472.4 199.1L486.7 195.6L501.6 192.5L517.1 189.9L533.3 187.9L550.0 186.8L567.0 186.8L583.8 188.0L600.0 190.3L615.4 193.5L629.7 197.4L643.0 202.0L655.3 207.0L666.4 212.5L676.5 218.4L685.3 224.6L693.0 231.1L699.4 238.0L704.3 245.1L707.5 252.5L708.7 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.30" stroke-width=".9" stroke-dasharray="1 4"/><path d="M739.6 260.0L738.6 269.0L735.3 277.8L729.9 286.5L722.6 294.8L713.6 302.8L703.0 310.4L690.8 317.4L677.0 323.9L661.8 329.7L645.3 334.8L627.7 339.0L609.1 342.3L589.6 344.5L569.8 345.2L550.0 344.7L530.7 343.2L512.0 341.0L493.5 338.8L474.8 336.5L455.5 334.1L436.2 331.0L417.7 326.5L401.8 320.4L389.6 312.8L381.4 304.1L376.6 295.0L373.7 286.0L371.4 277.2L368.9 268.6L366.3 260.0L364.5 251.2L364.8 242.2L368.1 233.2L374.5 224.6L384.1 216.6L396.1 209.3L409.9 202.8L424.9 197.1L440.8 191.9L457.4 187.3L474.5 183.1L492.2 179.4L510.7 176.2L530.0 173.9L550.0 172.6L570.3 172.6L590.3 174.0L609.7 176.7L628.1 180.6L645.2 185.3L661.1 190.7L675.7 196.7L689.1 203.3L701.0 210.3L711.7 217.7L720.9 225.5L728.5 233.7L734.3 242.2L738.1 251.0L739.6 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.29" stroke-width=".9"/><path d="M770.4 260.0L769.3 270.4L765.5 280.7L759.2 290.8L750.7 300.5L740.3 309.8L727.9 318.6L713.7 326.8L697.6 334.3L680.0 341.0L660.8 346.9L640.3 351.9L618.7 355.7L596.1 358.2L573.0 359.1L550.0 358.5L527.6 356.7L505.8 354.2L484.3 351.6L462.5 349.0L440.2 346.2L417.6 342.5L396.2 337.4L377.7 330.3L363.5 321.4L353.9 311.3L348.3 300.7L345.0 290.2L342.3 280.0L339.4 270.0L336.4 260.0L334.4 249.7L334.7 239.3L338.4 228.9L346.0 218.8L357.0 209.5L371.0 201.1L387.1 193.5L404.6 186.8L423.1 180.9L442.3 175.5L462.2 170.6L482.8 166.3L504.3 162.6L526.8 159.8L550.0 158.4L573.6 158.4L596.9 160.0L619.4 163.2L640.8 167.6L660.7 173.1L679.2 179.4L696.2 186.4L711.7 194.0L725.6 202.2L738.0 210.8L748.7 219.9L757.5 229.4L764.3 239.4L768.7 249.6L770.4 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.27" stroke-width=".9"/><path d="M801.3 260.0L800.0 271.9L795.6 283.7L788.4 295.1L778.8 306.2L766.9 316.7L752.8 326.8L736.6 336.1L718.3 344.7L698.1 352.4L676.3 359.1L653.0 364.8L628.3 369.1L602.5 372.0L576.2 373.0L550.0 372.3L524.4 370.2L499.6 367.4L475.1 364.4L450.3 361.5L424.8 358.3L399.1 354.1L374.7 348.2L353.6 340.1L337.3 330.0L326.5 318.5L320.1 306.4L316.3 294.4L313.2 282.8L309.9 271.4L306.5 260.0L304.2 248.3L304.5 236.4L308.8 224.5L317.4 213.1L330.0 202.5L345.9 192.8L364.3 184.2L384.2 176.6L405.3 169.8L427.2 163.6L449.9 158.1L473.4 153.1L497.9 148.9L523.5 145.8L550.0 144.1L576.9 144.2L603.5 146.0L629.2 149.6L653.5 154.7L676.2 161.0L697.3 168.2L716.7 176.1L734.3 184.8L750.2 194.1L764.3 204.0L776.5 214.3L786.6 225.2L794.4 236.5L799.4 248.1L801.3 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.26" stroke-width=".9" stroke-dasharray="1 4"/><path d="M832.1 260.0L830.7 273.4L825.8 286.6L817.7 299.4L806.9 311.8L793.6 323.7L777.8 335.0L759.5 345.5L739.0 355.1L716.3 363.7L691.8 371.3L665.6 377.6L637.9 382.5L609.0 385.7L579.4 386.9L550.0 386.1L521.3 383.8L493.4 380.6L465.9 377.2L438.1 373.9L409.4 370.3L380.6 365.7L353.2 359.0L329.4 350.0L311.2 338.6L299.0 325.6L291.9 312.1L287.6 298.6L284.2 285.6L280.4 272.8L276.6 260.0L274.0 246.9L274.4 233.5L279.2 220.1L288.8 207.3L303.0 195.4L320.9 184.6L341.4 174.9L363.9 166.3L387.5 158.7L412.1 151.8L437.6 145.6L463.9 140.0L491.5 135.3L520.3 131.8L550.0 129.9L580.2 129.9L610.0 132.0L638.9 136.1L666.2 141.8L691.7 148.8L715.4 156.9L737.1 165.8L757.0 175.6L774.8 186.0L790.6 197.1L804.3 208.7L815.7 220.9L824.4 233.6L830.0 246.7L832.1 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.24" stroke-width=".9"/><path d="M863.0 260.0L861.4 274.8L855.9 289.5L847.0 303.7L835.0 317.5L820.2 330.7L802.7 343.2L782.4 354.8L759.7 365.5L734.5 375.1L707.3 383.5L678.3 390.5L647.5 396.0L615.4 399.5L582.7 400.7L550.0 399.9L518.1 397.3L487.2 393.8L456.7 390.0L425.8 386.4L394.0 382.4L362.0 377.2L331.6 369.9L305.3 359.8L285.1 347.2L271.6 332.8L263.6 317.8L258.9 302.8L255.1 288.4L250.9 274.2L246.6 260.0L243.8 245.4L244.3 230.6L249.6 215.8L260.3 201.6L276.0 188.3L295.8 176.3L318.6 165.6L343.5 156.1L369.8 147.6L397.0 140.0L425.3 133.1L454.5 126.9L485.1 121.7L517.0 117.8L550.0 115.7L583.5 115.7L616.6 118.0L648.6 122.5L678.9 128.8L707.2 136.6L733.5 145.6L757.6 155.5L779.6 166.3L799.4 177.9L816.9 190.2L832.1 203.1L844.7 216.6L854.4 230.7L860.6 245.2L863.0 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.23" stroke-width=".9"/><path d="M893.9 260.0L892.1 276.3L886.1 292.4L876.3 308.0L863.1 323.2L846.9 337.6L827.6 351.4L805.4 364.2L780.3 375.9L752.7 386.4L722.8 395.6L690.9 403.4L657.1 409.4L621.9 413.2L585.9 414.6L550.0 413.7L515.0 410.8L481.0 407.0L447.5 402.9L413.6 398.8L378.7 394.5L343.5 388.8L310.1 380.7L281.2 369.7L259.0 355.8L244.1 340.0L235.4 323.5L230.2 307.1L226.0 291.2L221.4 275.6L216.7 260.0L213.6 244.0L214.1 227.7L220.0 211.4L231.7 195.8L249.0 181.3L270.7 168.1L295.8 156.3L323.2 145.9L352.0 136.5L382.0 128.2L413.0 120.6L445.1 113.8L478.7 108.0L513.7 103.7L550.0 101.4L586.8 101.5L623.2 104.0L658.3 108.9L691.6 115.9L722.7 124.5L751.6 134.3L778.1 145.2L802.2 157.1L824.0 169.8L843.2 183.3L859.9 197.5L873.8 212.3L884.4 227.8L891.2 243.8L893.9 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.22" stroke-width=".9" stroke-dasharray="1 4"/><path d="M924.7 260.0L922.8 277.8L916.3 295.3L905.6 312.3L891.2 328.8L873.5 344.6L852.5 359.6L828.3 373.5L801.0 386.3L770.9 397.8L738.4 407.8L703.5 416.2L666.7 422.8L628.3 426.9L589.1 428.5L550.0 427.5L511.9 424.4L474.9 420.2L438.3 415.7L401.3 411.3L363.3 406.5L325.0 400.3L288.6 391.5L257.1 379.5L232.9 364.4L216.7 347.2L207.2 329.2L201.5 311.3L197.0 294.0L191.9 277.0L186.8 260.0L183.4 242.5L184.0 224.8L190.3 207.1L203.1 190.0L222.0 174.2L245.7 159.8L273.0 147.0L302.8 135.6L334.2 125.5L366.9 116.3L400.7 108.0L435.7 100.6L472.3 94.4L510.5 89.7L550.0 87.2L590.1 87.2L629.7 90.0L668.1 95.4L704.3 103.0L738.2 112.3L769.6 123.0L798.5 135.0L824.9 147.9L848.6 161.7L869.6 176.4L887.7 191.9L902.8 208.1L914.4 224.9L921.9 242.3L924.7 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.20" stroke-width=".9"/><path d="M955.6 260.0L953.5 279.2L946.4 298.2L934.9 316.7L919.3 334.5L900.1 351.6L877.4 367.8L851.2 382.9L821.7 396.7L789.1 409.1L753.9 420.0L716.2 429.1L676.3 436.2L634.8 440.7L592.3 442.4L550.0 441.2L508.7 437.9L468.7 433.4L429.1 428.5L389.1 423.7L347.9 418.6L306.4 411.9L267.0 402.4L232.9 389.3L206.7 373.0L189.2 354.4L178.9 334.8L172.8 315.5L167.9 296.8L162.5 278.5L156.9 260.0L153.2 241.1L153.8 221.9L160.7 202.7L174.6 184.3L195.0 167.1L220.6 151.6L250.2 137.7L282.4 125.4L316.5 114.4L351.8 104.5L388.4 95.5L426.3 87.5L465.9 80.8L507.2 75.7L550.0 73.0L593.4 73.0L636.3 76.0L677.8 81.8L717.0 90.0L753.7 100.1L787.7 111.8L819.0 124.7L847.5 138.6L873.2 153.6L895.9 169.5L915.5 186.3L931.9 203.8L944.4 222.0L952.5 240.8L955.6 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.19" stroke-width=".9"/><path d="M986.4 260.0L984.2 280.7L976.6 301.1L964.1 321.0L947.4 340.2L926.8 358.5L902.3 376.0L874.1 392.2L842.3 407.1L807.3 420.4L769.4 432.1L728.8 442.0L686.0 449.6L641.2 454.4L595.5 456.2L550.0 455.0L505.6 451.5L462.5 446.5L419.9 441.3L376.8 436.2L332.5 430.7L287.9 423.4L245.5 413.2L208.8 399.2L180.6 381.6L161.8 361.5L150.7 340.5L144.1 319.7L138.8 299.6L133.0 279.9L127.0 260.0L123.0 239.7L123.7 218.9L131.1 198.3L146.0 178.5L167.9 160.1L195.6 143.3L227.4 128.4L262.1 115.1L298.7 103.3L336.7 92.7L376.1 83.0L416.9 74.4L459.5 67.1L504.0 61.7L550.0 58.7L596.7 58.8L642.9 62.0L687.5 68.3L729.8 77.1L769.2 88.0L805.8 100.5L839.5 114.4L870.1 129.4L897.7 145.5L922.2 162.7L943.4 180.7L960.9 199.5L974.4 219.1L983.1 239.4L986.4 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.17" stroke-width=".9" stroke-dasharray="1 4"/><path d="M1017.3 260.0L1014.9 282.1L1006.8 304.0L993.4 325.3L975.5 345.8L953.4 365.5L927.2 384.2L897.0 401.6L863.0 417.5L825.5 431.8L784.9 444.3L741.5 454.8L695.6 463.0L647.7 468.2L598.7 470.1L550.0 468.8L502.4 465.0L456.3 459.7L410.7 454.2L364.6 448.7L317.1 442.7L269.4 435.0L224.0 424.0L184.7 409.0L154.5 390.2L134.3 368.7L122.5 346.2L115.4 324.0L109.7 302.4L103.5 281.3L97.1 260.0L92.8 238.2L93.5 216.0L101.5 194.0L117.5 172.8L140.9 153.0L170.5 135.1L204.6 119.1L241.7 104.9L280.9 92.2L321.7 80.8L363.8 70.5L407.5 61.3L453.1 53.5L500.7 47.7L550.0 44.5L600.0 44.6L649.5 48.0L697.2 54.7L742.5 64.2L784.7 75.8L823.9 89.2L859.9 104.1L892.8 120.2L922.3 137.4L948.5 155.8L971.2 175.0L990.0 195.2L1004.4 216.2L1013.7 237.9L1017.3 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.16" stroke-width=".9"/><path d="M1048.2 260.0L1045.6 283.6L1036.9 306.9L1022.7 329.6L1003.6 351.5L980.1 372.5L952.1 392.4L919.9 410.9L883.7 427.9L843.7 443.1L800.4 456.5L754.1 467.7L705.2 476.4L654.1 481.9L602.0 484.0L550.0 482.6L499.3 478.5L450.1 472.9L401.6 467.0L352.3 461.1L301.8 454.8L250.8 446.6L202.4 434.9L160.6 418.9L128.4 398.8L106.9 375.9L94.2 351.9L86.7 328.2L80.7 305.2L74.0 282.7L67.2 260.0L62.6 236.8L63.4 213.1L71.9 189.6L88.9 167.0L113.9 145.9L145.4 126.8L181.8 109.8L221.4 94.6L263.2 81.1L306.6 69.0L351.5 58.0L398.1 48.2L446.7 39.8L497.5 33.6L550.0 30.3L603.3 30.3L656.0 34.0L707.0 41.2L755.2 51.2L800.2 63.6L842.0 77.9L880.4 93.8L915.4 110.9L946.9 129.4L974.8 148.9L999.0 169.4L1019.0 191.0L1034.4 213.4L1044.4 236.5L1048.2 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.15" stroke-width=".9"/><path d="M1079.0 260.0L1076.3 285.1L1067.1 309.8L1052.0 333.9L1031.7 357.2L1006.7 379.5L977.0 400.6L942.9 420.3L904.3 438.3L861.9 454.5L815.9 468.7L766.8 480.6L714.8 489.8L660.6 495.7L605.2 497.9L550.0 496.4L496.2 492.1L443.9 486.1L392.4 479.8L340.1 473.6L286.4 466.9L232.3 458.1L180.9 445.7L136.4 428.7L102.3 407.4L79.4 383.1L66.0 357.6L58.0 332.4L51.6 308.0L44.5 284.1L37.3 260.0L32.4 235.4L33.3 210.2L42.2 185.3L60.3 161.2L86.9 138.9L120.4 118.6L158.9 100.5L201.0 84.4L245.4 70.1L291.5 57.2L339.2 45.5L388.7 35.0L440.3 26.2L494.2 19.6L550.0 16.0L606.6 16.1L662.6 20.0L716.7 27.6L767.9 38.3L815.7 51.5L860.1 66.6L900.9 83.5L938.0 101.7L971.5 121.3L1001.1 142.0L1026.8 163.8L1048.1 186.7L1064.4 210.5L1075.0 235.0L1079.0 260.0Z" fill="none" stroke="#121312" stroke-opacity="0.13" stroke-width=".9" stroke-dasharray="1 4"/></svg>
+                        <div class="plate-wipe">
+                            <img src="assets/plates/vol-surface-1w.jpg" width="1440" height="778" fetchpriority="high"
+                                 alt="Wireframe implied volatility surface drawn in ink on paper">
+                        </div>
+                    </div>
                 </div>
             </div>
+            <p class="fig-label"><b>Implied volatility surface</b></p>
 
-            <!-- Simulated-path fan: the house graphic language, drawn in code -->
-            <div class="fan-wrap rise d3" aria-hidden="true">
-                <svg class="fan" viewBox="0 0 760 560" fill="none">
-                    <path class="flat" d="M30 310 H 744"/>
-                    <g class="base">
-                        <path class="draw" pathLength="1" d="M30 310 C 220 306, 460 290, 730 250" style="animation-delay:.30s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 230 300, 470 260, 730 190" style="animation-delay:.36s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 240 296, 480 232, 730 140" style="animation-delay:.42s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 250 290, 500 208, 730 96"  style="animation-delay:.48s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 230 312, 470 318, 730 320" style="animation-delay:.54s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 230 318, 470 350, 730 380" style="animation-delay:.60s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 240 322, 480 384, 730 436" style="animation-delay:.66s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 250 328, 500 410, 730 490" style="animation-delay:.72s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 260 334, 520 440, 730 530" style="animation-delay:.78s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 260 284, 520 180, 730 60"  style="animation-delay:.84s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 210 308, 450 302, 730 288" style="animation-delay:.90s"/>
-                        <path class="draw" pathLength="1" d="M30 310 C 235 314, 475 334, 730 352" style="animation-delay:.96s"/>
-                    </g>
-                    <path class="acc draw" pathLength="1" stroke="#2B7A78" d="M30 310 C 245 292, 490 220, 730 118" style="animation-delay:.55s"/>
-                    <path class="acc draw" pathLength="1" stroke="#3D7A42" d="M30 310 C 235 304, 475 276, 730 222" style="animation-delay:.70s"/>
-                    <path class="acc draw" pathLength="1" stroke="#C86A3A" d="M30 310 C 240 320, 480 368, 730 410" style="animation-delay:.85s"/>
-                    <path class="acc draw" pathLength="1" stroke="#7050A0" d="M30 310 C 255 330, 505 424, 730 508" style="animation-delay:1.0s"/>
-                    <circle class="dot" cx="730" cy="118" r="4.5" fill="#2B7A78"/>
-                    <circle class="dot" cx="730" cy="222" r="4.5" fill="#3D7A42"/>
-                    <circle class="dot" cx="730" cy="410" r="4.5" fill="#C86A3A"/>
-                    <circle class="dot" cx="730" cy="508" r="4.5" fill="#7050A0"/>
-                    <circle cx="30" cy="310" r="4" fill="#121312"/>
-                </svg>
-                <span class="fan-origin">t = 0</span>
+            <div class="wrap">
+                <div class="copy">
+                    <p class="sec-label rise d1"><span class="n">Model Sense</span><span class="t">Intelligence &amp; Judgment</span></p>
+                    <h1 class="rise d2">Models are math.<br><em>Risk is human.</em></h1>
+                    <p class="lede rise d3">
+                        Model Sense connects ALM modeling knowledge to practical use: a practitioner book, an interactive modeling lab, and a deposit-modeling masterclass for the bank treasury and risk teams who build, validate, and defend these models.
+                    </p>
+                    <div class="hero-ctas rise d4">
+                        <a href="#book" class="btn-arrow">
+                            <span>Explore the book</span>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.6" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                        <a href="./alm-model-lab/" class="btn-arrow quiet">
+                            <span>Launch the Lab</span>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.6" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Contents index -->
-        <div class="wrap contents rise d4">
+        <div class="wrap contents ms-reveal">
             <div class="contents-head"><span class="t">On this page</span></div>
             <div class="contents-rows">
                 <a href="#book" style="--dot: var(--teal);">
@@ -742,7 +891,7 @@
     <!-- ═══════════════ ABOUT ═══════════════ -->
     <section id="about" class="band band-rule">
         <div class="wrap about-grid">
-            <div class="reveal">
+            <div class="ms-reveal">
                 <p class="sec-label"><span class="n">01</span><span class="t">About</span></p>
                 <p class="about-name">Chih Chen</p>
                 <p class="about-role">Creator, Model Sense · ALM modeling practitioner</p>
@@ -760,7 +909,7 @@
                     Models are tools, not oracles. They can be useful without being precise or accurate all the time.
                 </blockquote>
             </div>
-            <div class="reveal">
+            <div class="ms-reveal">
                 <h2 class="sec-title">Built on one premise.</h2>
                 <div class="prose">
                     <p>
@@ -780,7 +929,7 @@
     <!-- ═══════════════ THE BOOK ═══════════════ -->
     <section id="book" class="band on-dark">
         <div class="wrap book-grid">
-            <div class="reveal">
+            <div class="ms-reveal">
                 <p class="sec-label"><span class="n">02</span><span class="t">The Book</span></p>
                 <h2 class="sec-title">Practical ALM<br>Behavioral Modeling</h2>
                 <p class="book-sub">How Deposit Behavior, Interest Rate Risk, and Liquidity Shape Bank Balance Sheets</p>
@@ -805,7 +954,7 @@
             </div>
 
             <!-- Book cover art (Palgrave-style mockup; placeholder until the publisher's cover exists) -->
-            <div class="reveal book-cover-col">
+            <div class="ms-reveal book-cover-col">
                 <div class="book-cover">
                     <div class="cover-band"><p>Chih Chen</p></div>
                     <div class="cover-title">
@@ -834,22 +983,47 @@
                 </div>
             </div>
         </div>
+
+        <!-- The sheet, tipped in whole on the band mesh -->
+        <div class="band-plate ms-reveal" data-seed="7301">
+            <p class="fig-label"><b>Yield curves through time</b></p>
+            <div class="bleed" aria-hidden="true"></div>
+            <div class="sheet"><div class="plate-wipe">
+                <img src="assets/plates/curve-surface-3-sheet.jpg" width="1367" height="769" loading="lazy"
+                     alt="Wireframe yield curve surface drawn in ink on paper">
+            </div></div>
+        </div>
     </section>
 
     <!-- ═══════════════ ALM MODEL LAB ═══════════════ -->
     <section id="lab" class="band">
         <div class="wrap">
-            <div class="lab-intro reveal">
+            <div class="lab-top">
+            <div class="lab-intro ms-reveal">
                 <p class="sec-label"><span class="n">03</span><span class="t">Interactive</span></p>
                 <h2 class="sec-title">ALM Model Lab</h2>
                 <div class="prose">
-                    <p style="font-size:1.08rem;">
+                    <p>
                         A browser-based modeling lab. It bootstraps the SOFR curve, fits SABR to the cap-vol surface, calibrates Hull-White and BGM/LMM rate models, runs Monte Carlo simulation, and drives calibrated deposit, CD, and mortgage behavioral models through the ALM analytics that connect rates to the balance sheet. No install, no vendor black box; the assumptions are explicit and the mechanics are visible.
                     </p>
                 </div>
             </div>
 
-            <div class="lab-cards reveal">
+            <!-- The ink plate, cut on the same paper as the band and revealed
+                 by the same 900ms wipe the hero plate uses. -->
+            <div class="lab-object ms-reveal">
+                <div class="surface-card">
+                    <div class="plate-wipe">
+                        <img id="lab-plate" src="assets/plates/vol-surface-wide-sheet.jpg"
+                             width="1400" height="1050" loading="lazy"
+                             alt="Wireframe implied volatility surface drawn in ink on paper, rising at both strike wings above a contour floor">
+                    </div>
+                    <p class="fig-label"><b>SABR implied volatility surface</b></p>
+                </div>
+            </div>
+            </div>
+
+            <div class="lab-cards ms-reveal">
                 <div class="lab-card" style="--accent: var(--teal);">
                     <span class="idx">01</span>
                     <div class="glyph">
@@ -894,7 +1068,7 @@
                 </div>
             </div>
 
-            <div class="lab-lower reveal">
+            <div class="lab-lower ms-reveal">
                 <div class="roadmap on-dark">
                     <p class="sec-label" style="margin-bottom:22px;"><span class="n">&#8594;</span><span class="t">On the roadmap</span></p>
                     <div class="roadmap-item first">
@@ -921,7 +1095,7 @@
     <!-- ═══════════════ MASTERCLASS ═══════════════ -->
     <section id="masterclass" class="band on-dark">
         <div class="wrap mc-grid">
-            <div class="reveal">
+            <div class="ms-reveal">
                 <p class="sec-label"><span class="n">04</span><span class="t">Live training</span></p>
                 <h2 class="sec-title">Deposit Modeling<br>for Bank ALM</h2>
                 <div class="prose" style="margin-top:26px;">
@@ -936,7 +1110,7 @@
                 </dl>
                 <a href="#contact" class="btn-ghost-inv">Register your interest</a>
             </div>
-            <div class="reveal covers-panel">
+            <div class="ms-reveal covers-panel">
                 <p class="sec-label" style="margin-bottom:24px;"><span class="n">&#8594;</span><span class="t">What it covers</span></p>
                 <ul class="covers-list">
                     <li>Non-maturity deposit decay and component-based attrition</li>
@@ -947,12 +1121,22 @@
                 </ul>
             </div>
         </div>
+
+        <!-- The same treatment, same trim -->
+        <div class="band-plate ms-reveal" data-seed="4409">
+            <p class="fig-label"><b>Deposit survival by account age</b></p>
+            <div class="bleed" aria-hidden="true"></div>
+            <div class="sheet"><div class="plate-wipe">
+                <img src="assets/plates/survival-surface-7-sheet.jpg" width="1426" height="802" loading="lazy"
+                     alt="Wireframe deposit survival surface: share of accounts remaining falls steeply with account age then flattens, one row per rate regime">
+            </div></div>
+        </div>
     </section>
 
     <!-- ═══════════════ WRITING ═══════════════ -->
     <section id="writing" class="band">
         <div class="wrap">
-            <div class="writing-head reveal">
+            <div class="writing-head ms-reveal">
                 <div>
                     <p class="sec-label"><span class="n">05</span><span class="t">Research &amp; writing</span></p>
                     <h2 class="sec-title" style="margin-bottom:0;">Published work</h2>
@@ -960,10 +1144,21 @@
                 <p class="blurb">Selected research on deposit behavior, interest rate risk, and the bridge from repricing gaps to risk measures.</p>
             </div>
 
-            <div class="reveal">
-                <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6269838" target="_blank" rel="noopener">
+            <div class="ms-reveal">
+                <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7195438" target="_blank" rel="noopener">
                     <div class="paper-inner">
                         <span class="num" aria-hidden="true">01</span>
+                        <span>
+                            <span class="venue">SSRN Working Paper · August 2026</span>
+                            <h3>Developing an account-level mortgage prepayment model with an agentic AI team</h3>
+                            <span class="abs">Methodology, calibration, and the case for human validation: a competing-risks prepayment and default model built on public Freddie Mac loan-level data.</span>
+                        </span>
+                        <span class="btn-arrow read"><span>Read</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="1.5" d="M7 17L17 7M17 7H7M17 7V17"></path></svg></span>
+                    </div>
+                </a>
+                <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6269838" target="_blank" rel="noopener">
+                    <div class="paper-inner">
+                        <span class="num" aria-hidden="true">02</span>
                         <span>
                             <span class="venue">SSRN Working Paper · 2026</span>
                             <h3>Dynamic Deposit Betas: An Asymmetric Volatility-Adjusted S-Curve Framework for MMDA Rate Sensitivity</h3>
@@ -974,7 +1169,7 @@
                 </a>
                 <a class="paper" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5997414" target="_blank" rel="noopener">
                     <div class="paper-inner">
-                        <span class="num" aria-hidden="true">02</span>
+                        <span class="num" aria-hidden="true">03</span>
                         <span>
                             <span class="venue">SSRN Working Paper · 2025</span>
                             <h3>Beyond Static Bifurcation: A Regime-Aware Approach to Nonmaturity Deposit Modeling</h3>
@@ -985,7 +1180,7 @@
                 </a>
                 <a class="paper" href="https://hstalks.com/article/9110/dynamic-deposit-behaviours-in-irrbb-enhancing-risk/?business" target="_blank" rel="noopener">
                     <div class="paper-inner">
-                        <span class="num" aria-hidden="true">03</span>
+                        <span class="num" aria-hidden="true">04</span>
                         <span>
                             <span class="venue">Journal of Risk Management in Financial Institutions · 2025</span>
                             <h3>Dynamic Deposit Behaviours in IRRBB: Enhancing Risk Management through Sensitivity Analysis</h3>
@@ -996,7 +1191,7 @@
                 </a>
                 <a class="paper" href="https://btrm.org/wp-content/uploads/2025/05/BTRM-WP23-NMD-Component_Chih-Chen.pdf" target="_blank" rel="noopener">
                     <div class="paper-inner">
-                        <span class="num" aria-hidden="true">04</span>
+                        <span class="num" aria-hidden="true">05</span>
                         <span>
                             <span class="venue">BTRM Working Paper Series #23 · 2025</span>
                             <h3>A Component-Based Model for Non-Maturity Deposit Decay Incorporating Interest Rate and Credit Spread Sensitivity</h3>
@@ -1007,7 +1202,7 @@
                 </a>
                 <a class="paper" href="https://btrm.org/wp-content/uploads/2024/09/BTRM-%E2%80%93-WP20-Deposit-Modeling.pdf" target="_blank" rel="noopener">
                     <div class="paper-inner" style="border-bottom:none;">
-                        <span class="num" aria-hidden="true">05</span>
+                        <span class="num" aria-hidden="true">06</span>
                         <span>
                             <span class="venue">BTRM Working Paper Series #20 · 2024</span>
                             <h3>The Impact of Deposit Modeling on Interest Rate Risk in the Banking Book (IRRBB) Sensitivity Metrics: A Worked Illustration</h3>
@@ -1022,7 +1217,7 @@
 
     <!-- ═══════════════ CONTACT ═══════════════ -->
     <section id="contact" class="contact band-rule">
-        <div class="wrap reveal">
+        <div class="wrap ms-reveal">
             <p class="sec-label" style="justify-content:center;"><span class="n">06</span><span class="t">Get in touch</span></p>
             <h2>Let's talk models.</h2>
             <p>For the book waitlist, masterclass registration, or a question about the ALM Model Lab, send a note.</p>
@@ -1030,8 +1225,11 @@
         </div>
     </section>
 
+    </main>
+
     <!-- ═══════════════ FOOTER ═══════════════ -->
     <footer>
+        <div class="latt-foot" aria-hidden="true"><svg class="brand-lattice" viewBox="0 0 1560 1080" width="1560" height="1080" stroke-opacity="0.10" aria-hidden="true" focusable="false"><use href="#ms-lat-lines"></use></svg></div>
         <div class="wrap">
             <p class="foot-legal">The views and content on this site reflect the views of Chih Chen in his personal capacity and do not represent the views, positions, or endorsements of his employer or any other organization. The ALM Model Lab and all content on this site are for educational and illustrative purposes only. Nothing here constitutes financial advice, investment advice, or regulatory guidance; outputs from the Model Lab are not intended for use in actual risk management decisions.</p>
             <div class="foot-row">
@@ -1049,18 +1247,147 @@
     </footer>
 
     <!-- ═══════════════ SCRIPT ═══════════════ -->
+    <!-- The shared renderer, byte-identical to the copy the ALM Model Lab loads. -->
+    <script src="assets/lattice.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Scroll reveal
+            var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // A still capture cannot show motion, so ?p= pins the page to a
+            // point on its own timeline: ?p=1 is the finished state.
+            var pinM = /[?&]p=([0-9.]+)/.exec(location.search);
+            var pin = pinM ? parseFloat(pinM[1]) : null;
+
+            // Scroll reveal, from assets/motion.css: opacity and translateY only.
             var observer = new IntersectionObserver(function (entries, obs) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
+                        entry.target.classList.add('is-in');
                         obs.unobserve(entry.target);
                     }
                 });
             }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-            document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+            document.querySelectorAll('.ms-reveal').forEach(function (el) { observer.observe(el); });
+
+            // Band plates: the recurring geometry runs across the band behind
+            // the sheet, the sheet is a plain rectangle trimmed crisp on all
+            // four edges, and the same 900ms wipe uncovers it once the band is
+            // reached. The mesh is drawn to the strip and is occluded wherever
+            // the sheet sits on it.
+            document.querySelectorAll('.band-plate').forEach(function (bp) {
+                var box = bp.querySelector('.bleed');
+                var wipe = bp.querySelector('.plate-wipe');
+                if (!box || !wipe || !window.MSLattice) return;
+                function draw() {
+                    var w = Math.round(box.clientWidth), h = Math.round(box.clientHeight);
+                    if (!w || !h) return;
+                    var onDark = !!bp.closest('.on-dark');
+                    box.querySelectorAll('svg').forEach(function (n) { n.remove(); });
+
+                    // The geometry is not masked by the reveal, so it stays put
+                    // while the sheet uncovers over it.
+                    var lines = MSLattice.svg({ seed: parseInt(bp.dataset.seed, 10),
+                                                width: w, height: h, cell: 64,
+                                                opacity: 0.10, dots: null, bleed: 1.4 });
+                    if (onDark) {
+                        var lg = lines.querySelector('g');
+                        if (lg) { lg.setAttribute('stroke', '#F6F6F4'); lg.setAttribute('stroke-opacity', '0.16'); }
+                    }
+                    box.appendChild(lines);
+                }
+
+                // The mesh is four screens down: draw and reveal on the same
+                // approach, and let the sheet itself load lazily.
+                var drawn = false;
+                function arm() {
+                    if (drawn) return;
+                    drawn = true;
+                    draw();
+                    addEventListener('resize', draw, { passive: true });
+                }
+                var io2 = new IntersectionObserver(function (es) {
+                    es.forEach(function (e) {
+                        if (!e.isIntersecting) return;
+                        arm();
+                        requestAnimationFrame(function () { wipe.classList.add('is-in'); });
+                        io2.unobserve(e.target);
+                    });
+                }, { threshold: 0, rootMargin: '0px 0px 400px 0px' });
+                if (pin !== null || reduced) { arm(); wipe.classList.add('is-in'); } else { io2.observe(bp); }
+            });
+
+            // The Lab plate. The band's own 900ms wipe uncovers it once, when
+            // the band is reached. From there the sheet drifts with the
+            // scroll: 24px of lift and three percent of scale across the range
+            // the object spends on screen, transform only, no loop. Under
+            // reduced motion neither move runs and the plate sits finished.
+            var plate = document.getElementById('lab-plate');
+            if (plate) {
+                var pw = plate.parentNode, labBox = document.querySelector('.lab-object');
+
+                if (pin !== null || reduced) {
+                    pw.classList.add('is-in');
+                } else {
+                    var io3 = new IntersectionObserver(function (es) {
+                        es.forEach(function (e) {
+                            if (!e.isIntersecting) return;
+                            requestAnimationFrame(function () { pw.classList.add('is-in'); });
+                            io3.unobserve(e.target);
+                        });
+                    }, { threshold: 0.1 });
+                    io3.observe(labBox);
+
+                    // Scroll-linked, so the position is read rather than
+                    // animated: no transition applies and nothing to ease.
+                    var LIFT = 24, GROW = 0.03, queued = false;
+                    var drift = function () {
+                        queued = false;
+                        var r = labBox.getBoundingClientRect(), vh = innerHeight;
+                        if (r.bottom < -200 || r.top > vh + 200) return;
+                        var p = (vh - r.top) / (vh + r.height);
+                        p = p < 0 ? 0 : p > 1 ? 1 : p;
+                        plate.style.transform = 'translate3d(0,' + (-LIFT * p).toFixed(2) +
+                                                'px,0) scale(' + (1 + GROW * p).toFixed(4) + ')';
+                    };
+                    addEventListener('scroll', function () {
+                        if (queued) { return; }
+                        queued = true;
+                        requestAnimationFrame(drift);
+                    }, { passive: true });
+                    addEventListener('resize', drift, { passive: true });
+                    drift();
+                }
+            }
+
+            if (pin !== null) {
+                document.documentElement.classList.add('ms-still');
+                document.querySelectorAll('.ms-reveal, .ms-draw, .ms-draw-dot')
+                    .forEach(function (n) { n.classList.add('is-in'); });
+            }
+
+            // The base contours drift at 0.32 of scroll speed: the plate's
+            // shadow stays with the page while the surface above it moves,
+            // which is what makes the object sit on the paper rather than be
+            // printed into it. The faceted clip does not move, so the drift
+            // happens inside the cut.
+            (function () {
+                var c = document.querySelector('.contours');
+                if (!c || reduced) return;
+                var t = 0, want = 0, run = false;
+                function frame() {
+                    t += (want - t) * 0.14;
+                    c.style.transform = 'translate3d(0,' + t.toFixed(2) + 'px,0)';
+                    if (Math.abs(want - t) > 0.05) { requestAnimationFrame(frame); } else { run = false; }
+                }
+                addEventListener('scroll', function () {
+                    want = scrollY * 0.32;
+                    if (!run) { run = true; requestAnimationFrame(frame); }
+                }, { passive: true });
+            })();
+
+            // End state, asserted once the load-in is over, so a still capture
+            // matches what the live page settles on.
+            setTimeout(function () { document.body.classList.add('settled'); }, 3200);
 
             // Nav shadow + compact on scroll; reading-progress hairline
             var nav = document.getElementById('nav');
@@ -1078,16 +1405,33 @@
             var btn = document.getElementById('menu-btn');
             var overlay = document.getElementById('overlay');
             var closeBtn = document.getElementById('overlay-close');
+            // Everything the overlay covers. Marked inert while the menu is open so
+            // Tab cannot walk out of the dialog into the page behind it.
+            var behind = [];
+            Array.prototype.forEach.call(document.body.children, function (el) {
+                if (el !== overlay && el.tagName !== 'SCRIPT') { behind.push(el); }
+            });
+            function setBehindInert(on) {
+                behind.forEach(function (el) {
+                    if (on) { el.setAttribute('inert', ''); }
+                    else { el.removeAttribute('inert'); }
+                });
+            }
+            function overlayControls() {
+                return Array.prototype.slice.call(overlay.querySelectorAll('a[href], button'));
+            }
             function openMenu() {
                 overlay.classList.add('open');
                 btn.setAttribute('aria-expanded', 'true');
                 document.body.style.overflow = 'hidden';
+                setBehindInert(true);
                 closeBtn.focus();
             }
             function closeMenu() {
                 overlay.classList.remove('open');
                 btn.setAttribute('aria-expanded', 'false');
                 document.body.style.overflow = '';
+                setBehindInert(false);
                 btn.focus();
             }
             btn.addEventListener('click', openMenu);
@@ -1097,10 +1441,24 @@
                     overlay.classList.remove('open');
                     btn.setAttribute('aria-expanded', 'false');
                     document.body.style.overflow = '';
+                    setBehindInert(false);
                 });
             });
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && overlay.classList.contains('open')) { closeMenu(); }
+                if (!overlay.classList.contains('open')) { return; }
+                if (e.key === 'Escape') { closeMenu(); return; }
+                // Fallback cycle for browsers without inert support.
+                if (e.key !== 'Tab' || 'inert' in HTMLElement.prototype) { return; }
+                var items = overlayControls();
+                if (!items.length) { return; }
+                var first = items[0], last = items[items.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault(); last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault(); first.focus();
+                } else if (items.indexOf(document.activeElement) === -1) {
+                    e.preventDefault(); first.focus();
+                }
             });
         });
     </script>

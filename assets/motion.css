@@ -1,0 +1,101 @@
+/* Model Sense motion system. Shared by the website and the ALM Model Lab.
+   Every move says something: a value being plotted, a fit landing, a
+   simulation settling. Transform, opacity and stroke only.
+
+   Bootstrap (put this once per page; classes stay inert without it):
+
+     document.documentElement.classList.add('ms-js');
+     var io = new IntersectionObserver(function (es) {
+       es.forEach(function (e) {
+         if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+       });
+     }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+     document.querySelectorAll('.ms-reveal, .ms-draw, .ms-draw-dot')
+       .forEach(function (n) { io.observe(n); });
+*/
+
+:root {
+  --ms-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* UI moves */
+  --ms-t-fast: 150ms;
+  --ms-t-med: 300ms;
+  --ms-t-slow: 450ms;
+
+  /* Reveals */
+  --ms-t-reveal: 600ms;
+  --ms-t-reveal-long: 900ms;
+  --ms-reveal-shift: 22px;
+  --ms-stagger: 80ms;
+
+  /* Plot-in for stroked paths */
+  --ms-t-draw: 900ms;
+}
+
+/* ---- UI transitions -------------------------------------------------- */
+
+.ms-ui       { transition: color var(--ms-t-fast) var(--ms-ease),
+                           background-color var(--ms-t-fast) var(--ms-ease),
+                           border-color var(--ms-t-fast) var(--ms-ease),
+                           opacity var(--ms-t-fast) var(--ms-ease); }
+.ms-ui-med   { transition: transform var(--ms-t-med) var(--ms-ease),
+                           opacity var(--ms-t-med) var(--ms-ease); }
+.ms-ui-slow  { transition: transform var(--ms-t-slow) var(--ms-ease),
+                           opacity var(--ms-t-slow) var(--ms-ease); }
+
+/* ---- Reveal on scroll ------------------------------------------------ */
+/* Gated on .ms-js so the page reads fine when the script never runs. */
+
+.ms-js .ms-reveal {
+  opacity: 0;
+  transform: translateY(var(--ms-reveal-shift));
+  transition: opacity var(--ms-t-reveal) var(--ms-ease),
+              transform var(--ms-t-reveal) var(--ms-ease);
+  transition-delay: var(--ms-d, 0ms);
+  will-change: opacity, transform;
+}
+.ms-js .ms-reveal--long { transition-duration: var(--ms-t-reveal-long); }
+.ms-js .ms-reveal.is-in { opacity: 1; transform: none; }
+
+/* Sequence a group of siblings. Eight is the practical ceiling. */
+.ms-js .ms-seq > *:nth-child(1) { --ms-d: 0ms; }
+.ms-js .ms-seq > *:nth-child(2) { --ms-d: calc(var(--ms-stagger) * 1); }
+.ms-js .ms-seq > *:nth-child(3) { --ms-d: calc(var(--ms-stagger) * 2); }
+.ms-js .ms-seq > *:nth-child(4) { --ms-d: calc(var(--ms-stagger) * 3); }
+.ms-js .ms-seq > *:nth-child(5) { --ms-d: calc(var(--ms-stagger) * 4); }
+.ms-js .ms-seq > *:nth-child(6) { --ms-d: calc(var(--ms-stagger) * 5); }
+.ms-js .ms-seq > *:nth-child(7) { --ms-d: calc(var(--ms-stagger) * 6); }
+.ms-js .ms-seq > *:nth-child(8) { --ms-d: calc(var(--ms-stagger) * 7); }
+
+/* ---- Plotting a path ------------------------------------------------- */
+/* Set --ms-len to the path length (getTotalLength, rounded up). */
+
+.ms-js .ms-draw {
+  stroke-dasharray: var(--ms-len, 2000);
+  stroke-dashoffset: var(--ms-len, 2000);
+}
+.ms-js .ms-draw.is-in {
+  transition: stroke-dashoffset var(--ms-t-draw) var(--ms-ease);
+  transition-delay: var(--ms-d, 0ms);
+  stroke-dashoffset: 0;
+}
+/* End markers land after the line reaches them. */
+.ms-js .ms-draw-dot {
+  opacity: 0;
+  transition: opacity var(--ms-t-med) var(--ms-ease);
+  transition-delay: var(--ms-t-draw);
+}
+.ms-js .ms-draw-dot.is-in { opacity: 1; }
+
+/* ---- Reduced motion -------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-js .ms-reveal,
+  .ms-js .ms-draw-dot { opacity: 1; transform: none; }
+  .ms-js .ms-draw { stroke-dasharray: none; stroke-dashoffset: 0; }
+  .ms-ui, .ms-ui-med, .ms-ui-slow,
+  .ms-js .ms-reveal, .ms-js .ms-draw, .ms-js .ms-draw-dot {
+    transition: none !important;
+    animation: none !important;
+  }
+}
