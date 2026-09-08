@@ -16,12 +16,12 @@
         /* amp: peak lift as a fraction of plate height. floor: the band of
            height-from-bottom over which the mask rises from 0 (floor and
            contours, held still) to 1 (the top of the mesh). */
-        'vol-surface-1w':           { amp: 0.011, floor: [0.30, 0.62], mode: 'loop' },
-        'curve-surface-3-sheet':    { amp: 0.009, floor: [0.22, 0.55], mode: 'once' },
-        'vol-surface-wide-sheet':   { amp: 0.010, floor: [0.34, 0.66], mode: 'once' },
-        'survival-surface-7-sheet': { amp: 0.008, floor: [0.24, 0.58], mode: 'once' }
+        'vol-surface-1w':           { amp: 0.030, floor: [0.30, 0.62], mode: 'loop' },
+        'curve-surface-3-sheet':    { amp: 0.024, floor: [0.22, 0.55], mode: 'once' },
+        'vol-surface-wide-sheet':   { amp: 0.026, floor: [0.34, 0.66], mode: 'once' },
+        'survival-surface-7-sheet': { amp: 0.022, floor: [0.24, 0.58], mode: 'once' }
     };
-    var RAMP_IN = 2.4, HOLD = 7.0, RAMP_OUT = 3.0, DPR_CAP = 2;
+    var RAMP_IN = 2.0, HOLD = 8.0, RAMP_OUT = 3.0, DPR_CAP = 2;
 
     var VERT = [
         'attribute vec2 p;',
@@ -36,8 +36,8 @@
         '  float h = 1.0 - v.y;',
         '  float m = smoothstep(floorBand.x, floorBand.y, h);',
         '  float a = amp * m;',
-        '  float dy = a * (0.62*sin(6.28318*(v.x*1.30 + t/9.0)) + 0.38*sin(6.28318*(v.x*0.70 - t/13.0) + 0.9));',
-        '  float dx = a * 0.30 * sin(6.28318*(h*1.10 + t/11.0));',
+        '  float dy = a * (0.62*sin(6.28318*(v.x*1.30 + t/6.5)) + 0.38*sin(6.28318*(v.x*0.70 - t/9.5) + 0.9));',
+        '  float dx = a * 0.30 * sin(6.28318*(h*1.10 + t/8.0));',
         '  gl_FragColor = texture2D(tex, v + vec2(dx, dy));',
         '}'
     ].join('\n');
