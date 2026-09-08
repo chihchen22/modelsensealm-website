@@ -390,19 +390,19 @@
         body.settled .hero .plate-wipe { animation: none; -webkit-mask-image: none; mask-image: none; }
 
         /* ── Motion plates ──────────────────────────────────────────
-           Each plate carries a short clip of the same drawing, laid over the
-           still. The still is what loads and what paints, so nothing about
-           first paint changes; the clip is fetched only once the plate is on
-           screen, on a wide viewport, and fades in over the still once it can
-           play. The clip runs forward then back, so it always lands on its own
-           first frame. It sits inside the wipe and inside the blend, so the
-           reveal, the multiply on the hero and the invert-and-screen on the
-           bands all apply to it exactly as they apply to the still. */
+           Each plate breathes: assets/plate-motion.js draws the plate image
+           itself through a small WebGL warp, a few pixels of lift on the mesh
+           with the floor held still, on a canvas laid over the still. At zero
+           amplitude the warp is the still, pixel for pixel, so the canvas can
+           fade on and off it with no visible handover, and nothing is
+           downloaded beyond the still. The canvas sits inside the wipe and
+           inside the blend, so the reveal, the multiply on the hero and the
+           invert-and-screen on the bands apply to it as they do to the still. */
         .plate-wipe { position: relative; }
         .plate-motion {
             position: absolute; inset: 0; width: 100%; height: 100%;
-            object-fit: cover; opacity: 0; pointer-events: none;
-            transition: opacity 0.6s var(--ease-out);
+            display: block; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s var(--ease-out);
         }
         .plate-motion.is-live { opacity: 1; }
         .band-plate .sheet .plate-motion { filter: invert(1) hue-rotate(180deg) brightness(0.98) contrast(1.14); }
@@ -859,8 +859,6 @@
                         <div class="plate-wipe">
                             <img src="assets/plates/vol-surface-1w.jpg" width="1440" height="778" fetchpriority="high"
                                  alt="Wireframe implied volatility surface drawn in ink on paper">
-                            <video class="plate-motion" data-src="assets/plates/vol-surface-1w_web_v1.mp4" data-mode="loop"
-                                   muted playsinline loop preload="none" aria-hidden="true" tabindex="-1"></video>
                         </div>
                     </div>
                 </div>
@@ -1014,8 +1012,6 @@
             <div class="sheet"><div class="plate-wipe">
                 <img src="assets/plates/curve-surface-3-sheet.jpg" width="1367" height="769" loading="lazy"
                      alt="Wireframe yield curve surface drawn in ink on paper">
-                <video class="plate-motion" data-src="assets/plates/curve-surface-3-sheet_web_v1.mp4" data-mode="once"
-                       muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
             </div></div>
         </div>
     </section>
@@ -1042,8 +1038,6 @@
                         <img id="lab-plate" src="assets/plates/vol-surface-wide-sheet.jpg"
                              width="1400" height="1050" loading="lazy"
                              alt="Wireframe implied volatility surface drawn in ink on paper, rising at both strike wings above a contour floor">
-                        <video class="plate-motion" data-src="assets/plates/vol-surface-wide-sheet_web_v1.mp4" data-mode="once"
-                               muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
                     </div>
                     <p class="fig-label"><b>SABR implied volatility surface</b></p>
                 </div>
@@ -1156,8 +1150,6 @@
             <div class="sheet"><div class="plate-wipe">
                 <img src="assets/plates/survival-surface-7-sheet.jpg" width="1426" height="802" loading="lazy"
                      alt="Wireframe deposit survival surface: share of accounts remaining falls steeply with account age then flattens, one row per rate regime">
-                <video class="plate-motion" data-src="assets/plates/survival-surface-7-sheet_web_v1.mp4" data-mode="once"
-                       muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
             </div></div>
         </div>
     </section>
@@ -1278,6 +1270,8 @@
     <!-- ═══════════════ SCRIPT ═══════════════ -->
     <!-- The shared renderer, byte-identical to the copy the ALM Model Lab loads. -->
     <script src="assets/lattice.js" defer></script>
+    <!-- Motion plates: the plate image breathing through a WebGL warp. -->
+    <script src="assets/plate-motion.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1391,52 +1385,6 @@
                     drift();
                 }
             }
-
-            // Motion plates. The clip is fetched only once its plate is on
-            // screen, on a wide viewport, off reduced motion and off save-data,
-            // and never for a pinned capture. It starts after the reveal wipe
-            // has run. Band and Lab plates breathe once and settle on their own
-            // first frame, and breathe again on each return; the hero keeps a
-            // slow loop while it is on screen and pauses off it.
-            (function () {
-                // Off (2026-09-08): the Gemini clips are redrawings, not the
-                // still, so the handover shows. Replacement in progress.
-                var MOTION_PLATES = false;
-                if (!MOTION_PLATES) return;
-                var conn = navigator.connection || {};
-                var wide = matchMedia('(min-width: 900px)').matches;
-                if (reduced || pin !== null || !wide || conn.saveData) return;
-                var vids = document.querySelectorAll('.plate-motion[data-src]');
-                if (!vids.length || !('IntersectionObserver' in window)) return;
-
-                function start(v) {
-                    var p = v.play();
-                    if (p && p.catch) p.catch(function () {});
-                }
-                function arm(v) {
-                    var inHero = !!v.closest('.hero');
-                    var delay = inHero ? 1250 : 1000;
-                    v.addEventListener('canplaythrough', function () {
-                        setTimeout(function () { start(v); v.classList.add('is-live'); }, delay);
-                    }, { once: true });
-                    v.src = v.dataset.src;
-                    v.removeAttribute('data-src');
-                    v.load();
-                }
-                var io = new IntersectionObserver(function (es) {
-                    es.forEach(function (e) {
-                        var v = e.target, loop = v.dataset.mode === 'loop';
-                        if (e.isIntersecting) {
-                            if (v.dataset.src) { arm(v); return; }
-                            if (!v.classList.contains('is-live')) return;
-                            if (loop ? v.paused : v.ended) { start(v); }
-                        } else if (loop && !v.paused) {
-                            v.pause();
-                        }
-                    });
-                }, { threshold: 0.2 });
-                vids.forEach(function (v) { io.observe(v); });
-            })();
 
             if (pin !== null) {
                 document.documentElement.classList.add('ms-still');
