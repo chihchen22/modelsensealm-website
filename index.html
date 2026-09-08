@@ -1399,6 +1399,10 @@
             // first frame, and breathe again on each return; the hero keeps a
             // slow loop while it is on screen and pauses off it.
             (function () {
+                // Off (2026-09-08): the Gemini clips are redrawings, not the
+                // still, so the handover shows. Replacement in progress.
+                var MOTION_PLATES = false;
+                if (!MOTION_PLATES) return;
                 var conn = navigator.connection || {};
                 var wide = matchMedia('(min-width: 900px)').matches;
                 if (reduced || pin !== null || !wide || conn.saveData) return;
